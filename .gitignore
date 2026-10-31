@@ -1,0 +1,14 @@
+# Python & uv
+.venv/
+__pycache__/
+*.pyc
+
+# Local runtime data
+.sessions/
+raw/
+storage/*.sqlite
+storage/*.sqlite-shm
+storage/*.sqlite-wal
+
+# OS
+.DS_Store
