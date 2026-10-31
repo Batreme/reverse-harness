@@ -110,13 +110,13 @@ def capture_web(
         # Navigate
         console.print("[dim]Navigating and recording network interactions...[/dim]")
         try:
-            page.goto(url, wait_until="networkidle", timeout=30000)
-        except Exception:
-            # Fallback if networkidle times out
+            page.goto(url, wait_until="domcontentloaded", timeout=25000)
             try:
-                page.goto(url, wait_until="load", timeout=15000)
-            except Exception as e:
-                console.print(f"[yellow]Navigation warning:[/yellow] {e}")
+                page.wait_for_load_state("networkidle", timeout=8000)
+            except Exception:
+                pass
+        except Exception as e:
+            console.print(f"[yellow]Navigation warning:[/yellow] {e}")
 
         # Sleep extra wait seconds to ensure lazy loaders and async sockets trigger
         if wait_seconds > 0:

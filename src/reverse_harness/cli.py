@@ -112,6 +112,43 @@ def route(
     """Routes an arbitrary reverse engineering task using upstream reverse-skill playbooks."""
     route_task(task)
 
+@app.command()
+def batch(
+    file_path: Optional[Path] = typer.Option(None, "--file", "-f", help="Text file containing one URL per line"),
+    wait: int = typer.Option(3, "--wait", "-w", help="Wait seconds per site"),
+    wiki_dir: Optional[Path] = typer.Option(None, "--wiki-dir", help="Path to Fleet wiki targets directory"),
+):
+    """Batch captures and analyzes multiple URLs from a file or interactive list, then indexes all."""
+    if not file_path or not file_path.exists():
+        console.print(f"[red]Error: URLs file not found at {file_path}[/red]")
+        raise typer.Exit(code=1)
+
+    lines = [line.strip() for line in file_path.read_text(encoding="utf-8").splitlines() if line.strip() and not line.strip().startswith("#")]
+    console.print(f"[bold cyan]Found {len(lines)} targets to reverse engineer in batch.[/bold cyan]\n")
+
+    successful = []
+    failed = []
+
+    for idx, target_url in enumerate(lines, start=1):
+        console.rule(f"[bold yellow]Target {idx}/{len(lines)}: {target_url}[/bold yellow]")
+        try:
+            target_dir = capture_web(url=target_url, wait_seconds=wait)
+            target_name = target_dir.name
+            analyze_target(target_name=target_name, wiki_dir=wiki_dir)
+            successful.append((target_name, target_url))
+        except Exception as e:
+            console.print(f"[bold red]Failed on {target_url}:[/bold red] {e}")
+            failed.append((target_url, str(e)))
+
+    console.rule("[bold cyan]Batch Indexing[/bold cyan]")
+    index_wiki_targets(wiki_dir=wiki_dir)
+
+    console.print(f"\n[bold green]✓ Batch Complete![/bold green] Successfully analyzed: {len(successful)} | Failed: {len(failed)}")
+    for name, u in successful:
+        console.print(f"  • [green]✓[/green] [bold]{name}[/bold] ({u})")
+    for u, err in failed:
+        console.print(f"  • [red]✗[/red] {u} ({err})")
+
 def main():
     app()
 
