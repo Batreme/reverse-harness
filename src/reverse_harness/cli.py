@@ -149,6 +149,36 @@ def batch(
     for u, err in failed:
         console.print(f"  • [red]✗[/red] {u} ({err})")
 
+@app.command()
+def dna():
+    """Lists extracted design archetypes, color ramps, and typography rules."""
+    from reverse_harness.dna import list_archetypes
+    list_archetypes()
+
+@app.command()
+def scaffold(
+    name: str = typer.Argument(..., help="New application repository name (e.g. 'aura-studio')"),
+    concept: str = typer.Option(..., "--concept", "-c", help="Application concept or headline"),
+    style: str = typer.Option("dark-luxury", "--style", "-s", help="Design archetype (dark-luxury, minimal-editorial, cinematic-studio, modern-boutique)"),
+    install: bool = typer.Option(False, "--install", "-i", help="Run npm install automatically"),
+):
+    """Scaffolds a new Next.js 15 application based on reverse-engineered design DNA."""
+    from reverse_harness.scaffold import scaffold_nextjs_app
+    import subprocess
+    
+    out_dir = scaffold_nextjs_app(project_name=name, concept=concept, archetype_key=style)
+    
+    if install:
+        console.print("[dim]Installing npm dependencies...[/dim]")
+        subprocess.run(["npm", "install"], cwd=str(out_dir))
+        console.print("[bold green]✓ Dependencies installed![/bold green]")
+    
+    console.print(f"\n[bold green]🚀 Next Steps to run your new app:[/bold green]")
+    console.print(f"  cd {out_dir}")
+    if not install:
+        console.print(f"  npm install")
+    console.print(f"  npm run dev\n")
+
 def main():
     app()
 
