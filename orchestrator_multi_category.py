@@ -308,10 +308,15 @@ def main():
             }
             PROGRESS_FILE.write_text(json.dumps(progress, indent=2), encoding="utf-8")
 
-        # End of Checkpoint: Index and Commit
-        print(f"\n💾 Checkpoint {cp_idx} Complete. Syncing vector embeddings & updating INDEX.md...", flush=True)
+        # End of Checkpoint: Index in isolated subprocess and update INDEX.md
+        print(f"\n💾 Checkpoint {cp_idx} Complete. Syncing vector embeddings in isolated subprocess...", flush=True)
         try:
-            index_wiki_targets(wiki_dir=TARGETS_DIR)
+            import subprocess
+            subprocess.run(
+                [sys.executable, "-c", f"from reverse_harness.storage import index_wiki_targets; from pathlib import Path; index_wiki_targets(Path('{TARGETS_DIR}'))"],
+                cwd=str(PROJECT_ROOT),
+                check=True
+            )
         except Exception as e:
             print(f"Indexing error: {e}", flush=True)
 

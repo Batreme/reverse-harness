@@ -1,7 +1,7 @@
 {
   "started_at": "2026-11-14T14:41:43.755965",
   "checkpoints_total": 5,
-  "checkpoints_completed": 1,
+  "checkpoints_completed": 5,
   "completed_categories": {
     "design-agencies": {
       "successful": [
@@ -432,8 +432,1731 @@
       ],
       "failed": [],
       "completed_at": "2026-11-14T15:11:44.477189"
+    },
+    "technology": {
+      "successful": [
+        {
+          "name": "www-sztanki-com",
+          "url": "https://www.sztanki.com"
+        },
+        {
+          "name": "www-avilus-com",
+          "url": "https://www.avilus.com"
+        },
+        {
+          "name": "withwise-com",
+          "url": "https://withwise.com"
+        },
+        {
+          "name": "konkelectrical-com",
+          "url": "https://konkelectrical.com"
+        },
+        {
+          "name": "www-anduril-com",
+          "url": "https://www.anduril.com"
+        },
+        {
+          "name": "www-greenlock-io",
+          "url": "https://www.greenlock.io"
+        },
+        {
+          "name": "www-1centre-com",
+          "url": "https://www.1centre.com"
+        },
+        {
+          "name": "pixlpin-com_designs",
+          "url": "https://pixlpin.com_designs"
+        },
+        {
+          "name": "dennypratama-com",
+          "url": "https://dennypratama.com"
+        },
+        {
+          "name": "wiro-ae",
+          "url": "https://wiro.ae"
+        },
+        {
+          "name": "www-arsenals-com",
+          "url": "https://www.arsenals.com"
+        },
+        {
+          "name": "ads-apple-com",
+          "url": "https://ads.apple.com"
+        },
+        {
+          "name": "fontsight-xyz",
+          "url": "https://fontsight.xyz"
+        },
+        {
+          "name": "www-arshawnarbabi-com",
+          "url": "https://www.arshawnarbabi.com"
+        },
+        {
+          "name": "crun-ai",
+          "url": "https://crun.ai"
+        },
+        {
+          "name": "clinia-com",
+          "url": "https://clinia.com"
+        },
+        {
+          "name": "adamperlis-com",
+          "url": "https://adamperlis.com"
+        },
+        {
+          "name": "www-xantium-com",
+          "url": "https://www.xantium.com"
+        },
+        {
+          "name": "www-allerstudio-com",
+          "url": "https://www.allerstudio.com"
+        },
+        {
+          "name": "iroom-devinthehood-com",
+          "url": "https://iroom.devinthehood.com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T16:23:57.719573"
+    },
+    "luxury": {
+      "successful": [
+        {
+          "url": "https://kingriver.com.au/",
+          "name": "kingriver-com-au"
+        },
+        {
+          "url": "https://drshabri.com/",
+          "name": "drshabri-com"
+        },
+        {
+          "url": "https://www.bluesqx.com/",
+          "name": "www-bluesqx-com"
+        },
+        {
+          "url": "https://www.chriswilliamsart.com/",
+          "name": "www-chriswilliamsart-com"
+        },
+        {
+          "url": "https://pyzhevsky.estate/",
+          "name": "pyzhevsky-estate"
+        },
+        {
+          "url": "https://www.stellarmanagement.com",
+          "name": "www-stellarmanagement-com"
+        },
+        {
+          "url": "https://aryabhangybuilders.com/",
+          "name": "aryabhangybuilders-com"
+        },
+        {
+          "url": "https://www.flatlineagency.com/",
+          "name": "www-flatlineagency-com"
+        },
+        {
+          "url": "https://forgeautomotive.co.uk/",
+          "name": "forgeautomotive-co-uk"
+        },
+        {
+          "url": "https://www.esrbespoke.au/",
+          "name": "www-esrbespoke-au"
+        },
+        {
+          "url": "https://brandonyasin.com",
+          "name": "brandonyasin-com"
+        },
+        {
+          "url": "https://www.mdscollective.com",
+          "name": "www-mdscollective-com"
+        },
+        {
+          "url": "https://www.cartier.com/en-fr/lechoeurdespierres",
+          "name": "www-cartier-com_en-fr-lechoeurdespierres"
+        },
+        {
+          "url": "https://www.villiers.ai/",
+          "name": "www-villiers-ai"
+        },
+        {
+          "url": "https://www.pragenhatlen.com/",
+          "name": "www-pragenhatlen-com"
+        },
+        {
+          "url": "https://www.banham.co.uk/",
+          "name": "www-banham-co-uk"
+        },
+        {
+          "url": "https://fitosauna.com/",
+          "name": "fitosauna-com"
+        },
+        {
+          "url": "https://www.deathtorobots.com/",
+          "name": "www-deathtorobots-com"
+        },
+        {
+          "url": "https://tigris.lorolabs.ai/",
+          "name": "tigris-lorolabs-ai"
+        },
+        {
+          "url": "https://www.fixchocolatier.com/",
+          "name": "www-fixchocolatier-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T16:42:09.809888"
+    },
+    "art-illustration": {
+      "successful": [
+        {
+          "url": "https://www.johnbolster.design/",
+          "name": "www-johnbolster-design"
+        },
+        {
+          "url": "https://crl-2026.webflow.io/",
+          "name": "crl-2026-webflow-io"
+        },
+        {
+          "url": "https://deathbyscroll.com",
+          "name": "deathbyscroll-com"
+        },
+        {
+          "url": "https://aikissfiy.com",
+          "name": "aikissfiy-com"
+        },
+        {
+          "url": "https://phin.helenadang.work/",
+          "name": "phin-helenadang-work"
+        },
+        {
+          "url": "https://mauricemoynihan.com",
+          "name": "mauricemoynihan-com"
+        },
+        {
+          "url": "https://anokhee.dev/albatross",
+          "name": "anokhee-dev_albatross"
+        },
+        {
+          "url": "https://www.lamagadan.studio/",
+          "name": "www-lamagadan-studio"
+        },
+        {
+          "url": "https://www.worksruthi.com/",
+          "name": "www-worksruthi-com"
+        },
+        {
+          "url": "https://allsorts.andrew.rip",
+          "name": "allsorts-andrew-rip"
+        },
+        {
+          "url": "https://anemone.mina-massoud.com/",
+          "name": "anemone-mina-massoud-com"
+        },
+        {
+          "url": "https://www.fiabamia.com/",
+          "name": "www-fiabamia-com"
+        },
+        {
+          "url": "https://fineacts.co/",
+          "name": "fineacts-co"
+        },
+        {
+          "url": "https://dream-with-ai.com",
+          "name": "dream-with-ai-com"
+        },
+        {
+          "url": "https://www.beige.zone",
+          "name": "www-beige-zone"
+        },
+        {
+          "url": "http://www.iamsunnywang.com/",
+          "name": "www-iamsunnywang-com"
+        },
+        {
+          "url": "https://nader.io",
+          "name": "nader-io"
+        },
+        {
+          "url": "https://effepinnastudio.com/",
+          "name": "effepinnastudio-com"
+        },
+        {
+          "url": "https://www.brandlos.nl",
+          "name": "www-brandlos-nl"
+        },
+        {
+          "url": "https://onecoldnight.com/",
+          "name": "onecoldnight-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T16:47:19.502025"
+    },
+    "business-corporate": {
+      "successful": [
+        {
+          "url": "https://equitifyasset.com/",
+          "name": "equitifyasset-com"
+        },
+        {
+          "url": "https://north.cloud",
+          "name": "north-cloud"
+        },
+        {
+          "url": "https://www.weisslameraner.com/en",
+          "name": "www-weisslameraner-com_en"
+        },
+        {
+          "url": "https://loopsii.com/",
+          "name": "loopsii-com"
+        },
+        {
+          "url": "https://myfrida.com/",
+          "name": "myfrida-com"
+        },
+        {
+          "url": "https://jetalto.com/",
+          "name": "jetalto-com"
+        },
+        {
+          "url": "https://legacybridge.software/",
+          "name": "legacybridge-software"
+        },
+        {
+          "url": "https://secure-the-unknown.cyera.com/",
+          "name": "secure-the-unknown-cyera-com"
+        },
+        {
+          "url": "https://auge-xp.com/",
+          "name": "auge-xp-com"
+        },
+        {
+          "url": "https://altufanulu.com/en/",
+          "name": "altufanulu-com_en"
+        },
+        {
+          "url": "https://www.honeyquote.com/",
+          "name": "www-honeyquote-com"
+        },
+        {
+          "url": "https://bespokegroup.io/",
+          "name": "bespokegroup-io"
+        },
+        {
+          "url": "https://explorewashingtonpark.org",
+          "name": "explorewashingtonpark-org"
+        },
+        {
+          "url": "https://tibdigital.com",
+          "name": "tibdigital-com"
+        },
+        {
+          "url": "https://henwoodcourt.co.uk",
+          "name": "henwoodcourt-co-uk"
+        },
+        {
+          "url": "https://www.mbidirectmail.com/",
+          "name": "www-mbidirectmail-com"
+        },
+        {
+          "url": "https://dairyfoodbg.com/",
+          "name": "dairyfoodbg-com"
+        },
+        {
+          "url": "https://www.3moons.it",
+          "name": "www-3moons-it"
+        },
+        {
+          "url": "https://www.vanguardinitiative.com/",
+          "name": "www-vanguardinitiative-com"
+        },
+        {
+          "url": "https://vc.prty.jp/",
+          "name": "vc-prty-jp"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T16:50:04.009998"
+    },
+    "culture-education": {
+      "successful": [
+        {
+          "url": "https://bennos-light.org/",
+          "name": "bennos-light-org"
+        },
+        {
+          "url": "https://lfs.org.uk/",
+          "name": "lfs-org-uk"
+        },
+        {
+          "url": "https://www.oceans.faith/moralcatch",
+          "name": "www-oceans-faith_moralcatch"
+        },
+        {
+          "url": "https://yigua.art/?lang=en",
+          "name": "yigua-art"
+        },
+        {
+          "url": "https://brand.helloasso.com/",
+          "name": "brand-helloasso-com"
+        },
+        {
+          "url": "https://www.teamcafeteria.com/2027",
+          "name": "www-teamcafeteria-com_2027"
+        },
+        {
+          "url": "https://diseinuz.com/",
+          "name": "diseinuz-com"
+        },
+        {
+          "url": "https://statusisup.com/",
+          "name": "statusisup-com"
+        },
+        {
+          "url": "https://manifesto.blandina.org/",
+          "name": "manifesto-blandina-org"
+        },
+        {
+          "url": "https://alexandracapitanescu.com/",
+          "name": "alexandracapitanescu-com"
+        },
+        {
+          "url": "https://monument.tv/",
+          "name": "monument-tv"
+        },
+        {
+          "url": "https://www.discoverforgiveness.org/",
+          "name": "www-discoverforgiveness-org"
+        },
+        {
+          "url": "https://classe.squarespace.com/?password=demo",
+          "name": "classe-squarespace-com"
+        },
+        {
+          "url": "https://grids03.obys.agency/",
+          "name": "grids03-obys-agency"
+        },
+        {
+          "url": "https://100yearsmonet.com",
+          "name": "100yearsmonet-com"
+        },
+        {
+          "url": "https://yoloexe.com",
+          "name": "yoloexe-com"
+        },
+        {
+          "url": "https://michellekayewashington.com/",
+          "name": "michellekayewashington-com"
+        },
+        {
+          "url": "https://yoyu.design/",
+          "name": "yoyu-design"
+        },
+        {
+          "url": "https://ofrenda.davidlangarica.dev",
+          "name": "ofrenda-davidlangarica-dev"
+        }
+      ],
+      "failed": [
+        {
+          "url": "https://www.cleal.co.jp/",
+          "error": "Page.content: Unable to retrieve content because the page is navigating and changing the content."
+        }
+      ],
+      "completed_at": "2026-11-14T16:55:27.088653"
+    },
+    "events": {
+      "successful": [
+        {
+          "url": "https://madetodisrupt.com",
+          "name": "madetodisrupt-com"
+        },
+        {
+          "url": "https://www.gravelleduparc.com/",
+          "name": "www-gravelleduparc-com"
+        },
+        {
+          "url": "https://therechabite.com.au/",
+          "name": "therechabite-com-au"
+        },
+        {
+          "url": "https://lcg.media",
+          "name": "lcg-media"
+        },
+        {
+          "url": "https://www.paaspop.nl/",
+          "name": "www-paaspop-nl"
+        },
+        {
+          "url": "https://www.ataccama.com/fwrd2026",
+          "name": "www-ataccama-com_fwrd2026"
+        },
+        {
+          "url": "https://www.routedurhum.com/",
+          "name": "www-routedurhum-com"
+        },
+        {
+          "url": "https://cinetic-creatives.com/",
+          "name": "cinetic-creatives-com"
+        },
+        {
+          "url": "https://sotz.org/",
+          "name": "sotz-org"
+        },
+        {
+          "url": "https://wedding.s-tmro.com/",
+          "name": "wedding-s-tmro-com"
+        },
+        {
+          "url": "http://chandebootcamp.com/",
+          "name": "chandebootcamp-com"
+        },
+        {
+          "url": "https://imdday.ch/",
+          "name": "imdday-ch"
+        },
+        {
+          "url": "https://hoyojerez.com/",
+          "name": "hoyojerez-com"
+        },
+        {
+          "url": "https://www.offforum.com/",
+          "name": "www-offforum-com"
+        },
+        {
+          "url": "https://aya.nl",
+          "name": "aya-nl"
+        },
+        {
+          "url": "https://www.thedesignsociety.fr/",
+          "name": "www-thedesignsociety-fr"
+        },
+        {
+          "url": "https://www.tedxportland.com/",
+          "name": "www-tedxportland-com"
+        },
+        {
+          "url": "https://www.hauntedbouldercity.com/",
+          "name": "www-hauntedbouldercity-com"
+        },
+        {
+          "url": "https://www.designbomb.it/",
+          "name": "www-designbomb-it"
+        },
+        {
+          "url": "https://www.lesgmstudios.com/",
+          "name": "www-lesgmstudios-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T17:18:36.214101"
+    },
+    "film-tv": {
+      "successful": [
+        {
+          "url": "https://chanpan.com.ar",
+          "name": "chanpan-com-ar"
+        },
+        {
+          "url": "https://www.extrafazant.nl/",
+          "name": "www-extrafazant-nl"
+        },
+        {
+          "url": "https://www.barebonescollective.com/",
+          "name": "www-barebonescollective-com"
+        },
+        {
+          "url": "https://seedance3.si/",
+          "name": "seedance3-si"
+        },
+        {
+          "url": "https://suho.studio/",
+          "name": "suho-studio"
+        },
+        {
+          "url": "https://labellavista.es/",
+          "name": "labellavista-es"
+        },
+        {
+          "url": "https://1stdecember.com",
+          "name": "1stdecember-com"
+        },
+        {
+          "url": "https://rubenwalma.nl/",
+          "name": "rubenwalma-nl"
+        },
+        {
+          "url": "https://www.31-for-31.com/",
+          "name": "www-31-for-31-com"
+        },
+        {
+          "url": "https://giordanobetti.com/",
+          "name": "giordanobetti-com"
+        },
+        {
+          "url": "https://verasfawaz.com",
+          "name": "verasfawaz-com"
+        },
+        {
+          "url": "https://ridetorio.com/",
+          "name": "ridetorio-com"
+        },
+        {
+          "url": "https://yuyafilmstudio.dev/",
+          "name": "yuyafilmstudio-dev"
+        },
+        {
+          "url": "https://www.paragonproductions.co/",
+          "name": "www-paragonproductions-co"
+        },
+        {
+          "url": "https://www.huxleysaga.com/",
+          "name": "www-huxleysaga-com"
+        },
+        {
+          "url": "https://waverunmedia.com/",
+          "name": "waverunmedia-com"
+        },
+        {
+          "url": "https://milledollars.fr/",
+          "name": "milledollars-fr"
+        },
+        {
+          "url": "https://www.areyoudami.com",
+          "name": "www-areyoudami-com"
+        },
+        {
+          "url": "https://gmxdigital.com/en/",
+          "name": "gmxdigital-com_en"
+        },
+        {
+          "url": "https://midnightvideo.cuchillo.rocks/",
+          "name": "midnightvideo-cuchillo-rocks"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T17:23:57.811102"
+    },
+    "food-drink": {
+      "successful": [
+        {
+          "url": "https://yumlog.dev/",
+          "name": "yumlog-dev"
+        },
+        {
+          "url": "https://thunder-buns.com/",
+          "name": "thunder-buns-com"
+        },
+        {
+          "url": "https://www.agrumeafarm.it/en",
+          "name": "www-agrumeafarm-it_en"
+        },
+        {
+          "url": "https://deltacafes.com/en",
+          "name": "deltacafes-com_en"
+        },
+        {
+          "url": "https://aestudio.studio/hozon",
+          "name": "aestudio-studio_hozon"
+        },
+        {
+          "url": "https://yaas-energy.com/",
+          "name": "yaas-energy-com"
+        },
+        {
+          "url": "https://www.impastofornoantico.com/",
+          "name": "www-impastofornoantico-com"
+        },
+        {
+          "url": "https://henrietta.wearetattoodigital.com/",
+          "name": "henrietta-wearetattoodigital-com"
+        },
+        {
+          "url": "https://lifetimepastapass.com",
+          "name": "lifetimepastapass-com"
+        },
+        {
+          "url": "https://shorodo.nagoya/",
+          "name": "shorodo-nagoya"
+        },
+        {
+          "url": "https://siglitos.com",
+          "name": "siglitos-com"
+        },
+        {
+          "url": "https://bettr.academy/",
+          "name": "bettr-academy"
+        },
+        {
+          "url": "https://bar-topas.ch/",
+          "name": "bar-topas-ch"
+        },
+        {
+          "url": "https://lajoya-foods.com/en",
+          "name": "lajoya-foods-com_en"
+        },
+        {
+          "url": "https://theobromachocolat.com/",
+          "name": "theobromachocolat-com"
+        },
+        {
+          "url": "https://morphowater.com",
+          "name": "morphowater-com"
+        },
+        {
+          "url": "https://santionispirits.com/",
+          "name": "santionispirits-com"
+        },
+        {
+          "url": "https://iginusa.com",
+          "name": "iginusa-com"
+        },
+        {
+          "url": "https://the-family-rice-tray.vercel.app",
+          "name": "the-family-rice-tray-vercel-app"
+        },
+        {
+          "url": "https://kindi.land/",
+          "name": "kindi-land"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T17:27:53.071356"
+    },
+    "games-entertainment": {
+      "successful": [
+        {
+          "url": "https://matchball.today/",
+          "name": "matchball-today"
+        },
+        {
+          "url": "https://articles.gamcare.org.uk/",
+          "name": "articles-gamcare-org-uk"
+        },
+        {
+          "url": "https://tabletales.crz.studio/",
+          "name": "tabletales-crz-studio"
+        },
+        {
+          "url": "https://no.merci-michel.com",
+          "name": "no-merci-michel-com"
+        },
+        {
+          "url": "https://xavierjoliot.com",
+          "name": "xavierjoliot-com"
+        },
+        {
+          "url": "https://layernative.com/tinkeroll/",
+          "name": "layernative-com_tinkeroll"
+        },
+        {
+          "url": "https://www.cybear.it/world/",
+          "name": "www-cybear-it_world"
+        },
+        {
+          "url": "https://grail-app.com/",
+          "name": "grail-app-com"
+        },
+        {
+          "url": "https://daikifujita.com",
+          "name": "daikifujita-com"
+        },
+        {
+          "url": "https://mms.inherited.band/",
+          "name": "mms-inherited-band"
+        },
+        {
+          "url": "https://uimaven.art",
+          "name": "uimaven-art"
+        },
+        {
+          "url": "https://www.dontlookup.app/",
+          "name": "www-dontlookup-app"
+        },
+        {
+          "url": "https://loot-games.ru",
+          "name": "loot-games-ru"
+        },
+        {
+          "url": "https://oliviaarents.com/",
+          "name": "oliviaarents-com"
+        },
+        {
+          "url": "https://ty1official.com",
+          "name": "ty1official-com"
+        },
+        {
+          "url": "https://trek.cards/",
+          "name": "trek-cards"
+        },
+        {
+          "url": "https://awards.racing",
+          "name": "awards-racing"
+        },
+        {
+          "url": "https://levigav.com",
+          "name": "levigav-com"
+        },
+        {
+          "url": "https://derive-ocean.com/",
+          "name": "derive-ocean-com"
+        },
+        {
+          "url": "https://its-tomo.dev/",
+          "name": "its-tomo-dev"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T17:36:54.737899"
+    },
+    "hotel-restaurant": {
+      "successful": [
+        {
+          "url": "https://www.hoteldutassosorrento.com/",
+          "name": "www-hoteldutassosorrento-com"
+        },
+        {
+          "url": "https://www.terrenohotel.com/en/",
+          "name": "www-terrenohotel-com_en"
+        },
+        {
+          "url": "https://www.casamomo.at/",
+          "name": "www-casamomo-at"
+        },
+        {
+          "url": "https://www.vineyard.co.za/",
+          "name": "www-vineyard-co-za"
+        },
+        {
+          "url": "https://tengilemalamala.com/",
+          "name": "tengilemalamala-com"
+        },
+        {
+          "url": "https://www.3d-discovery.fr/",
+          "name": "www-3d-discovery-fr"
+        },
+        {
+          "url": "https://key.co/",
+          "name": "key-co"
+        },
+        {
+          "url": "https://mrcresidencesbocaraton.com",
+          "name": "mrcresidencesbocaraton-com"
+        },
+        {
+          "url": "https://hotelaurelia.online/",
+          "name": "hotelaurelia-online"
+        },
+        {
+          "url": "https://www.schlosshotel-kitzbuehel.com/en",
+          "name": "www-schlosshotel-kitzbuehel-com_en"
+        },
+        {
+          "url": "https://delice.ca/",
+          "name": "delice-ca"
+        },
+        {
+          "url": "https://clubcharlestown.com.au/",
+          "name": "clubcharlestown-com-au"
+        },
+        {
+          "url": "https://mont-rural.emblematica.agency",
+          "name": "mont-rural-emblematica-agency"
+        },
+        {
+          "url": "https://www.qissa.co.uk/",
+          "name": "www-qissa-co-uk"
+        },
+        {
+          "url": "https://white-desert.com/",
+          "name": "white-desert-com"
+        },
+        {
+          "url": "https://faithibiza.com/",
+          "name": "faithibiza-com"
+        },
+        {
+          "url": "https://www.lingers.it/en",
+          "name": "www-lingers-it_en"
+        },
+        {
+          "url": "https://www.kubehotel-saint-tropez.com/fr",
+          "name": "www-kubehotel-saint-tropez-com_fr"
+        },
+        {
+          "url": "https://useguidely.co/",
+          "name": "useguidely-co"
+        },
+        {
+          "url": "https://www.vanderhotel.com",
+          "name": "www-vanderhotel-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T17:40:20.067416"
+    },
+    "institutions": {
+      "successful": [
+        {
+          "url": "https://re-cycle.org/",
+          "name": "re-cycle-org"
+        },
+        {
+          "url": "https://www.spectup.com/",
+          "name": "www-spectup-com"
+        },
+        {
+          "url": "https://emmaus-agir-31.fr/",
+          "name": "emmaus-agir-31-fr"
+        },
+        {
+          "url": "https://familyservicelincoln.org",
+          "name": "familyservicelincoln-org"
+        },
+        {
+          "url": "https://www.si.edu/",
+          "name": "www-si-edu"
+        },
+        {
+          "url": "https://hopecancerresources.org/",
+          "name": "hopecancerresources-org"
+        },
+        {
+          "url": "https://kohenavocats.com/avocats-droit-famille-paris/",
+          "name": "kohenavocats-com_avocats-droit-famille-paris"
+        },
+        {
+          "url": "https://www.omni.org",
+          "name": "www-omni-org"
+        },
+        {
+          "url": "https://www.lapl.org/",
+          "name": "www-lapl-org"
+        },
+        {
+          "url": "https://woonpact.gent/",
+          "name": "woonpact-gent"
+        },
+        {
+          "url": "https://armor-bd.com",
+          "name": "armor-bd-com"
+        },
+        {
+          "url": "https://turismo.gov.st/fr",
+          "name": "turismo-gov-st_fr"
+        },
+        {
+          "url": "https://kamdalej.sk/en",
+          "name": "kamdalej-sk_en"
+        },
+        {
+          "url": "https://altamedfoundation.org/",
+          "name": "altamedfoundation-org"
+        },
+        {
+          "url": "http://inks.studio/",
+          "name": "inks-studio"
+        },
+        {
+          "url": "https://nodenza.com/",
+          "name": "nodenza-com"
+        },
+        {
+          "url": "https://www.seasats.com/",
+          "name": "www-seasats-com"
+        },
+        {
+          "url": "https://www.governorsmansion.org/",
+          "name": "www-governorsmansion-org"
+        },
+        {
+          "url": "https://www.sharplink.com/",
+          "name": "www-sharplink-com"
+        },
+        {
+          "url": "https://coloniazacamil.com/",
+          "name": "coloniazacamil-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T18:11:26.193414"
+    },
+    "magazine-newspaper-blog": {
+      "successful": [
+        {
+          "url": "https://www.soe.org.uk/",
+          "name": "www-soe-org-uk"
+        },
+        {
+          "url": "https://runtimewire.com",
+          "name": "runtimewire-com"
+        },
+        {
+          "url": "https://dailymoscow.ru/mirpay",
+          "name": "dailymoscow-ru_mirpay"
+        },
+        {
+          "url": "https://aizeitgeist.tv",
+          "name": "aizeitgeist-tv"
+        },
+        {
+          "url": "https://both-sides.the7eye.org.il/en/",
+          "name": "both-sides-the7eye-org-il_en"
+        },
+        {
+          "url": "https://findra.art/",
+          "name": "findra-art"
+        },
+        {
+          "url": "https://www.imersion.io",
+          "name": "www-imersion-io"
+        },
+        {
+          "url": "https://www.thefriedegg.com/",
+          "name": "www-thefriedegg-com"
+        },
+        {
+          "url": "https://sincro.es/en/us/",
+          "name": "sincro-es_en-us"
+        },
+        {
+          "url": "https://sinedogma.com.tr/",
+          "name": "sinedogma-com-tr"
+        },
+        {
+          "url": "https://tej.as/story",
+          "name": "tej-as_story"
+        },
+        {
+          "url": "https://www.politico.eu/sponsored-content/saving-costs-and-improving-lives/",
+          "name": "www-politico-eu_sponsored-content-saving-costs-and-improving-lives"
+        },
+        {
+          "url": "https://thecassandravale.com/",
+          "name": "thecassandravale-com"
+        },
+        {
+          "url": "https://rozaliabomawrites.com/",
+          "name": "rozaliabomawrites-com"
+        },
+        {
+          "url": "https://explorajourneys.com/int/en/explora-journal",
+          "name": "explorajourneys-com_int-en-explora-journal"
+        },
+        {
+          "url": "https://performeurope.eu/",
+          "name": "performeurope-eu"
+        },
+        {
+          "url": "https://stateofaidesign.com/",
+          "name": "stateofaidesign-com"
+        },
+        {
+          "url": "https://thefwa.net/",
+          "name": "thefwa-net"
+        },
+        {
+          "url": "https://chicago.com/",
+          "name": "chicago-com"
+        },
+        {
+          "url": "http://www.theboringblog.ai/",
+          "name": "www-theboringblog-ai"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T18:15:43.717526"
+    },
+    "mobile-apps": {
+      "successful": [
+        {
+          "url": "https://straw.page",
+          "name": "straw-page"
+        },
+        {
+          "url": "https://hole.money",
+          "name": "hole-money"
+        },
+        {
+          "url": "https://www.poulo.site/",
+          "name": "www-poulo-site"
+        },
+        {
+          "url": "https://www.leadoff.fr",
+          "name": "www-leadoff-fr"
+        },
+        {
+          "url": "https://newminds.studio/concept-elune",
+          "name": "newminds-studio_concept-elune"
+        },
+        {
+          "url": "https://www.danielebuser.com/",
+          "name": "www-danielebuser-com"
+        },
+        {
+          "url": "https://sparkle.ankatms.com",
+          "name": "sparkle-ankatms-com"
+        },
+        {
+          "url": "https://twodo.design",
+          "name": "twodo-design"
+        },
+        {
+          "url": "https://thewayapp.com",
+          "name": "thewayapp-com"
+        },
+        {
+          "url": "https://infinitytechstack.uk/pulsebridge",
+          "name": "infinitytechstack-uk_pulsebridge"
+        },
+        {
+          "url": "https://mubien.com/",
+          "name": "mubien-com"
+        },
+        {
+          "url": "https://pinreply.com/",
+          "name": "pinreply-com"
+        },
+        {
+          "url": "http://duda.works",
+          "name": "duda-works"
+        },
+        {
+          "url": "https://reelmotion.fit/",
+          "name": "reelmotion-fit"
+        },
+        {
+          "url": "https://mosaic.flabbergast.agency",
+          "name": "mosaic-flabbergast-agency"
+        },
+        {
+          "url": "https://serus.ai/",
+          "name": "serus-ai"
+        },
+        {
+          "url": "https://flycrooked.com/",
+          "name": "flycrooked-com"
+        },
+        {
+          "url": "https://fighterready.com/",
+          "name": "fighterready-com"
+        },
+        {
+          "url": "https://www.butter.video/",
+          "name": "www-butter-video"
+        },
+        {
+          "url": "https://offpossible.com/",
+          "name": "offpossible-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T18:19:48.202205"
+    },
+    "music-sound": {
+      "successful": [
+        {
+          "url": "https://v4vevilos.gr",
+          "name": "v4vevilos-gr"
+        },
+        {
+          "url": "https://lolawilde.com/",
+          "name": "lolawilde-com"
+        },
+        {
+          "url": "https://www.rtmaudio.com",
+          "name": "www-rtmaudio-com"
+        },
+        {
+          "url": "http://mindofakira.com",
+          "name": "mindofakira-com"
+        },
+        {
+          "url": "https://plastic.audio/dot/",
+          "name": "plastic-audio_dot"
+        },
+        {
+          "url": "https://layersoftime.studio/",
+          "name": "layersoftime-studio"
+        },
+        {
+          "url": "https://janiswanger.ch",
+          "name": "janiswanger-ch"
+        },
+        {
+          "url": "https://robertoattanasio.com/en",
+          "name": "robertoattanasio-com_en"
+        },
+        {
+          "url": "https://fabiantjoeaon.com",
+          "name": "fabiantjoeaon-com"
+        },
+        {
+          "url": "https://daddyyankee.com/",
+          "name": "daddyyankee-com"
+        },
+        {
+          "url": "https://www.norddeutscher-figuralchor.de",
+          "name": "www-norddeutscher-figuralchor-de"
+        },
+        {
+          "url": "https://pankow.band",
+          "name": "pankow-band"
+        },
+        {
+          "url": "https://zarcerog.com",
+          "name": "zarcerog-com"
+        },
+        {
+          "url": "https://www.future-human.de/",
+          "name": "www-future-human-de"
+        },
+        {
+          "url": "https://www.urbik.eu/",
+          "name": "www-urbik-eu"
+        },
+        {
+          "url": "https://overworldaudio.com/",
+          "name": "overworldaudio-com"
+        },
+        {
+          "url": "https://diversify.nz",
+          "name": "diversify-nz"
+        },
+        {
+          "url": "https://karma-tracks.com/",
+          "name": "karma-tracks-com"
+        },
+        {
+          "url": "http://www.avara.band",
+          "name": "www-avara-band"
+        },
+        {
+          "url": "https://ascension.pegassi.be/",
+          "name": "ascension-pegassi-be"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T18:24:37.583039"
+    },
+    "promotional": {
+      "successful": [
+        {
+          "url": "https://herasymenkox.com/",
+          "name": "herasymenkox-com"
+        },
+        {
+          "url": "https://continuance.ai/",
+          "name": "continuance-ai"
+        },
+        {
+          "url": "https://zenobasi.com",
+          "name": "zenobasi-com"
+        },
+        {
+          "url": "https://andreas.vision",
+          "name": "andreas-vision"
+        },
+        {
+          "url": "https://ethiack.com/",
+          "name": "ethiack-com"
+        },
+        {
+          "url": "https://labs.griflan.com/",
+          "name": "labs-griflan-com"
+        },
+        {
+          "url": "https://giallostudio.it/en/the-experience",
+          "name": "giallostudio-it_en-the-experience"
+        },
+        {
+          "url": "https://www.gianpaolotucci.com/work.html",
+          "name": "www-gianpaolotucci-com_work-html"
+        },
+        {
+          "url": "https://peabodyhouse.com",
+          "name": "peabodyhouse-com"
+        },
+        {
+          "url": "https://baboonbutts.com/",
+          "name": "baboonbutts-com"
+        },
+        {
+          "url": "https://www.blumjeffrey.com",
+          "name": "www-blumjeffrey-com"
+        },
+        {
+          "url": "https://studyhall.design/",
+          "name": "studyhall-design"
+        },
+        {
+          "url": "https://explore.auravinyl.com",
+          "name": "explore-auravinyl-com"
+        },
+        {
+          "url": "https://later.com/made-you-look/",
+          "name": "later-com_made-you-look"
+        },
+        {
+          "url": "https://relevovinco.com/",
+          "name": "relevovinco-com"
+        },
+        {
+          "url": "https://exp.fiddle.digital",
+          "name": "exp-fiddle-digital"
+        },
+        {
+          "url": "https://gpg.dops.agency/",
+          "name": "gpg-dops-agency"
+        },
+        {
+          "url": "https://www.polpharmabiologics.com/",
+          "name": "www-polpharmabiologics-com"
+        },
+        {
+          "url": "https://apricode.agency",
+          "name": "apricode-agency"
+        },
+        {
+          "url": "https://guillaumecolombel.fr/",
+          "name": "guillaumecolombel-fr"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T18:30:17.844914"
+    },
+    "real-estate": {
+      "successful": [
+        {
+          "url": "https://www.alexadevaney.com/",
+          "name": "www-alexadevaney-com"
+        },
+        {
+          "url": "https://foxvaluations.com.au",
+          "name": "foxvaluations-com-au"
+        },
+        {
+          "url": "https://www.concretemanagement.fr/",
+          "name": "www-concretemanagement-fr"
+        },
+        {
+          "url": "https://www.lev.com/",
+          "name": "www-lev-com"
+        },
+        {
+          "url": "https://tochi-sanwa.jp/",
+          "name": "tochi-sanwa-jp"
+        },
+        {
+          "url": "https://realevate.agency/",
+          "name": "realevate-agency"
+        },
+        {
+          "url": "https://azimuteresidencial.com.br/",
+          "name": "azimuteresidencial-com-br"
+        },
+        {
+          "url": "https://www.halcyon.co.nz/",
+          "name": "www-halcyon-co-nz"
+        },
+        {
+          "url": "https://residences.loamhouse.com.au",
+          "name": "residences-loamhouse-com-au"
+        },
+        {
+          "url": "https://m3-pg.de",
+          "name": "m3-pg-de"
+        },
+        {
+          "url": "https://www.quintadamalia.com/",
+          "name": "www-quintadamalia-com"
+        },
+        {
+          "url": "https://thenest.pl/en",
+          "name": "thenest-pl_en"
+        },
+        {
+          "url": "https://moderncraftaz.com/",
+          "name": "moderncraftaz-com"
+        },
+        {
+          "url": "https://superlogica.com/",
+          "name": "superlogica-com"
+        },
+        {
+          "url": "https://21oaks.org/",
+          "name": "21oaks-org"
+        },
+        {
+          "url": "https://360lexingtonave.com",
+          "name": "360lexingtonave-com"
+        },
+        {
+          "url": "https://bright-avenue.jp/",
+          "name": "bright-avenue-jp"
+        },
+        {
+          "url": "https://www.era-residence.com/",
+          "name": "www-era-residence-com"
+        },
+        {
+          "url": "https://wild-ag.ch/",
+          "name": "wild-ag-ch"
+        }
+      ],
+      "failed": [
+        {
+          "url": "https://sobha-privy-collection.com/",
+          "error": "Page.title: Target page, context or browser has been closed"
+        }
+      ],
+      "completed_at": "2026-11-14T19:07:39.302360"
+    },
+    "social-responsibility": {
+      "successful": [
+        {
+          "url": "https://powa.snp.agency/",
+          "name": "powa-snp-agency"
+        },
+        {
+          "url": "https://www.memedia.de",
+          "name": "www-memedia-de"
+        },
+        {
+          "url": "https://mstage-group.jp/",
+          "name": "mstage-group-jp"
+        },
+        {
+          "url": "https://zeropact.co",
+          "name": "zeropact-co"
+        },
+        {
+          "url": "https://cobaltaf.org/",
+          "name": "cobaltaf-org"
+        },
+        {
+          "url": "https://stillhere.hdfund.org/",
+          "name": "stillhere-hdfund-org"
+        },
+        {
+          "url": "https://opportunity.waltonfamilyfoundation.org/",
+          "name": "opportunity-waltonfamilyfoundation-org"
+        },
+        {
+          "url": "https://xiloteca.it/en/",
+          "name": "xiloteca-it_en"
+        },
+        {
+          "url": "http://plastic-ocean.com/",
+          "name": "plastic-ocean-com"
+        },
+        {
+          "url": "https://thesovietflip.com/",
+          "name": "thesovietflip-com"
+        },
+        {
+          "url": "https://www.197historiasilustradas.com/",
+          "name": "www-197historiasilustradas-com"
+        },
+        {
+          "url": "https://f-list.cleancreatives.org/",
+          "name": "f-list-cleancreatives-org"
+        },
+        {
+          "url": "http://fromearth.love",
+          "name": "fromearth-love"
+        },
+        {
+          "url": "https://www.apc-pallets.nl/",
+          "name": "www-apc-pallets-nl"
+        },
+        {
+          "url": "https://www.agencejacquesparis.fr/",
+          "name": "www-agencejacquesparis-fr"
+        },
+        {
+          "url": "https://www.rebelliously-optimistic.com/",
+          "name": "www-rebelliously-optimistic-com"
+        },
+        {
+          "url": "https://noho.ink",
+          "name": "noho-ink"
+        },
+        {
+          "url": "https://www.sentientx.com",
+          "name": "www-sentientx-com"
+        },
+        {
+          "url": "https://fondation.canadiens.com/",
+          "name": "fondation-canadiens-com"
+        },
+        {
+          "url": "https://tribeofgiants.com/",
+          "name": "tribeofgiants-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T19:11:49.788134"
+    },
+    "sports": {
+      "successful": [
+        {
+          "url": "https://www.fieldrank.run",
+          "name": "www-fieldrank-run"
+        },
+        {
+          "url": "https://baztan-race.com",
+          "name": "baztan-race-com"
+        },
+        {
+          "url": "https://nickho-motorsports.nl/",
+          "name": "nickho-motorsports-nl"
+        },
+        {
+          "url": "https://www.glowingcheetah.com/",
+          "name": "www-glowingcheetah-com"
+        },
+        {
+          "url": "https://bluntumbrellas.com",
+          "name": "bluntumbrellas-com"
+        },
+        {
+          "url": "https://www.alpineguides.co.nz/",
+          "name": "www-alpineguides-co-nz"
+        },
+        {
+          "url": "https://sixescricket.com/",
+          "name": "sixescricket-com"
+        },
+        {
+          "url": "https://www.thelasttango.com/",
+          "name": "www-thelasttango-com"
+        },
+        {
+          "url": "https://cue-onebranding.webflow.io/",
+          "name": "cue-onebranding-webflow-io"
+        },
+        {
+          "url": "https://helmetverse.ai/",
+          "name": "helmetverse-ai"
+        },
+        {
+          "url": "https://thestudiobyjuliegranger.com/",
+          "name": "thestudiobyjuliegranger-com"
+        },
+        {
+          "url": "https://boomballtour.com/",
+          "name": "boomballtour-com"
+        },
+        {
+          "url": "https://mychess.events/",
+          "name": "mychess-events"
+        },
+        {
+          "url": "https://actl.me/",
+          "name": "actl-me"
+        },
+        {
+          "url": "https://theimmortals.world/",
+          "name": "theimmortals-world"
+        },
+        {
+          "url": "https://www.oregonoutdooralliance.org/",
+          "name": "www-oregonoutdooralliance-org"
+        },
+        {
+          "url": "https://members-play.lacoste.com/ace-breaker-rg",
+          "name": "members-play-lacoste-com_ace-breaker-rg"
+        },
+        {
+          "url": "https://theperformancelab.ca/",
+          "name": "theperformancelab-ca"
+        },
+        {
+          "url": "https://www.cadillacf1team.com/",
+          "name": "www-cadillacf1team-com"
+        },
+        {
+          "url": "https://www.selkirk.com/pages/omni-pickleball-paddle",
+          "name": "www-selkirk-com_pages-omni-pickleball-paddle"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T19:15:42.483192"
+    },
+    "startups": {
+      "successful": [
+        {
+          "url": "https://ciuslabs.com/",
+          "name": "ciuslabs-com"
+        },
+        {
+          "url": "https://annnimate.com",
+          "name": "annnimate-com"
+        },
+        {
+          "url": "https://www.brandtheagency.com/",
+          "name": "www-brandtheagency-com"
+        },
+        {
+          "url": "https://thebranx.com",
+          "name": "thebranx-com"
+        },
+        {
+          "url": "https://ieqtechnology.com/",
+          "name": "ieqtechnology-com"
+        },
+        {
+          "url": "https://premotio.com/",
+          "name": "premotio-com"
+        },
+        {
+          "url": "https://www.nereo.io/",
+          "name": "www-nereo-io"
+        },
+        {
+          "url": "https://kissbranding.co.uk/",
+          "name": "kissbranding-co-uk"
+        },
+        {
+          "url": "https://earthwallet.com/",
+          "name": "earthwallet-com"
+        },
+        {
+          "url": "https://dark-moon.org/",
+          "name": "dark-moon-org"
+        },
+        {
+          "url": "https://www.motorq.com/",
+          "name": "www-motorq-com"
+        },
+        {
+          "url": "https://www.vibr.studio/",
+          "name": "www-vibr-studio"
+        },
+        {
+          "url": "https://book.sequel.co/",
+          "name": "book-sequel-co"
+        },
+        {
+          "url": "https://www.raomuhammadhamza.tech/",
+          "name": "www-raomuhammadhamza-tech"
+        },
+        {
+          "url": "https://jimo.ai/product/ai",
+          "name": "jimo-ai_product-ai"
+        },
+        {
+          "url": "https://supermodels.phototypelabs.com",
+          "name": "supermodels-phototypelabs-com"
+        },
+        {
+          "url": "https://www.mynobs.co",
+          "name": "www-mynobs-co"
+        },
+        {
+          "url": "https://jockey.stuudio.xyz/",
+          "name": "jockey-stuudio-xyz"
+        },
+        {
+          "url": "https://ross-oneill.com/",
+          "name": "ross-oneill-com"
+        },
+        {
+          "url": "https://giga.ai/",
+          "name": "giga-ai"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T19:20:23.707609"
+    },
+    "web-interactive": {
+      "successful": [
+        {
+          "url": "https://ellioteriksson.com/",
+          "name": "ellioteriksson-com"
+        },
+        {
+          "url": "https://douglus.co",
+          "name": "douglus-co"
+        },
+        {
+          "url": "https://www.zagrebwebusluge.com/",
+          "name": "www-zagrebwebusluge-com"
+        },
+        {
+          "url": "https://ksenpanchenko.com/",
+          "name": "ksenpanchenko-com"
+        },
+        {
+          "url": "https://www.fragment.im",
+          "name": "www-fragment-im"
+        },
+        {
+          "url": "https://www.zrk.technology/",
+          "name": "www-zrk-technology"
+        },
+        {
+          "url": "http://www.jasmin-karatas.ch",
+          "name": "www-jasmin-karatas-ch"
+        },
+        {
+          "url": "https://www.bitwip.fr/en",
+          "name": "www-bitwip-fr_en"
+        },
+        {
+          "url": "https://klad.design/",
+          "name": "klad-design"
+        },
+        {
+          "url": "https://www.incroy.com/",
+          "name": "www-incroy-com"
+        },
+        {
+          "url": "https://www.serko.ai",
+          "name": "www-serko-ai"
+        },
+        {
+          "url": "https://web-smith.de",
+          "name": "web-smith-de"
+        },
+        {
+          "url": "https://macmillan.studio",
+          "name": "macmillan-studio"
+        },
+        {
+          "url": "https://zujistudio.com/",
+          "name": "zujistudio-com"
+        },
+        {
+          "url": "https://lorenzolottici.it/en",
+          "name": "lorenzolottici-it_en"
+        },
+        {
+          "url": "https://abhayrohit.com/",
+          "name": "abhayrohit-com"
+        },
+        {
+          "url": "https://grubogrubo.com",
+          "name": "grubogrubo-com"
+        },
+        {
+          "url": "https://www.davidecarusio.it/",
+          "name": "www-davidecarusio-it"
+        },
+        {
+          "url": "https://www.jarnket.com/",
+          "name": "www-jarnket-com"
+        },
+        {
+          "url": "https://www.amberjs.dev/",
+          "name": "www-amberjs-dev"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T19:25:34.689938"
     }
   },
-  "total_targets_successful": 100,
-  "total_targets_failed": 0
+  "total_targets_successful": 478,
+  "total_targets_failed": 2,
+  "finished_at": "2026-11-14T20:06:39.347022"
 }
