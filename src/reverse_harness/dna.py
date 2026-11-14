@@ -122,6 +122,73 @@ DEFAULT_ARCHETYPES = {
             "hero_style": "luxury-editorial-banner",
             "grid_style": "masonry-curated"
         }
+    },
+    "gallery-monochrome": {
+        "name": "Monochrome Curatorial & Fine-Art Photography",
+        "description": "Archival museum presentation with tactile optical framelines, rich monochrome tonal values, refined serif titles, and keyboard navigation.",
+        "inspired_by": [
+            "agnestoth-com",
+            "sleutelaar-xyz",
+            "www-terakawaoffice-com_en",
+            "www-rosshalfin-com",
+            "perappelgren-de"
+        ],
+        "colors": {
+            "background": "#080808",
+            "surface": "#121212",
+            "surface_elevated": "#1b1b1b",
+            "border": "#262626",
+            "text_primary": "#f5f5f5",
+            "text_muted": "#8c8c8c",
+            "accent": "#d4d4d8",
+            "accent_glow": "#d4d4d81f"
+        },
+        "typography": {
+            "heading_font": "var(--font-heading), 'Newsreader', serif",
+            "body_font": "var(--font-body), 'Inter', sans-serif",
+            "mono_font": "'Space Mono', monospace",
+            "heading_tracking": "-0.015em",
+            "label_tracking": "0.2em"
+        },
+        "ui_rules": {
+            "border_radius": "rounded-none",
+            "navbar_style": "curatorial-masthead-borderless",
+            "hero_style": "optical-frameline-exhibition",
+            "grid_style": "gallery-horizontal-scrub"
+        }
+    },
+    "avant-garde-spatial": {
+        "name": "Avant-Garde Spatial & Experimental Visuals",
+        "description": "Interactive 3D viewports, WebGL spatial framing, neon phosphor telemetry hud, and non-linear kinetic scroll mechanics.",
+        "inspired_by": [
+            "constellations-icilalune-com",
+            "atmos-gallery",
+            "glinto-co-kr",
+            "ruthgriffioen-art"
+        ],
+        "colors": {
+            "background": "#050508",
+            "surface": "#0c0d14",
+            "surface_elevated": "#151722",
+            "border": "#202336",
+            "text_primary": "#f0f3f8",
+            "text_muted": "#7d8799",
+            "accent": "#06b6d4",
+            "accent_glow": "#06b6d426"
+        },
+        "typography": {
+            "heading_font": "var(--font-heading), 'Syncopate', sans-serif",
+            "body_font": "var(--font-body), 'Geist', sans-serif",
+            "mono_font": "'JetBrains Mono', monospace",
+            "heading_tracking": "-0.04em",
+            "label_tracking": "0.25em"
+        },
+        "ui_rules": {
+            "border_radius": "rounded-md",
+            "navbar_style": "spatial-hud-corners",
+            "hero_style": "spatial-3d-canvas-overlay",
+            "grid_style": "staggered-viewport-parallax"
+        }
     }
 }
 

@@ -1,0 +1,314 @@
+{
+  "started_at": "2026-11-14T13:45:22.742178",
+  "total": 50,
+  "completed": 50,
+  "successful": [
+    {
+      "index": 1,
+      "url": "https://constellations.icilalune.com/",
+      "target_name": "constellations-icilalune-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/constellations-icilalune-com"
+    },
+    {
+      "index": 2,
+      "url": "https://glinto.co.kr",
+      "target_name": "glinto-co-kr",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/glinto-co-kr"
+    },
+    {
+      "index": 3,
+      "url": "https://ruthgriffioen.art/",
+      "target_name": "ruthgriffioen-art",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/ruthgriffioen-art"
+    },
+    {
+      "index": 4,
+      "url": "https://www.terakawaoffice.com/en/",
+      "target_name": "www-terakawaoffice-com_en",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-terakawaoffice-com_en"
+    },
+    {
+      "index": 5,
+      "url": "https://www.baseline.agency/",
+      "target_name": "www-baseline-agency",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-baseline-agency"
+    },
+    {
+      "index": 6,
+      "url": "https://vivmgmt.com/",
+      "target_name": "vivmgmt-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/vivmgmt-com"
+    },
+    {
+      "index": 7,
+      "url": "https://filmmaker.framer.media/",
+      "target_name": "filmmaker-framer-media",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/filmmaker-framer-media"
+    },
+    {
+      "index": 8,
+      "url": "https://jozue.fr",
+      "target_name": "jozue-fr",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/jozue-fr"
+    },
+    {
+      "index": 9,
+      "url": "https://jonmccormack.com/",
+      "target_name": "jonmccormack-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/jonmccormack-com"
+    },
+    {
+      "index": 10,
+      "url": "https://www.unbelievablycrap.com/",
+      "target_name": "www-unbelievablycrap-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-unbelievablycrap-com"
+    },
+    {
+      "index": 11,
+      "url": "https://pixvibe.ai",
+      "target_name": "pixvibe-ai",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/pixvibe-ai"
+    },
+    {
+      "index": 12,
+      "url": "https://holmchrome.byholm.co/",
+      "target_name": "holmchrome-byholm-co",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/holmchrome-byholm-co"
+    },
+    {
+      "index": 13,
+      "url": "https://navtec.com/",
+      "target_name": "navtec-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/navtec-com"
+    },
+    {
+      "index": 14,
+      "url": "https://www.gerd-web.de",
+      "target_name": "www-gerd-web-de",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-gerd-web-de"
+    },
+    {
+      "index": 15,
+      "url": "https://productionportugal.com/",
+      "target_name": "productionportugal-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/productionportugal-com"
+    },
+    {
+      "index": 16,
+      "url": "https://kinoria.studio/",
+      "target_name": "kinoria-studio",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/kinoria-studio"
+    },
+    {
+      "index": 17,
+      "url": "https://www.east64films.com/",
+      "target_name": "www-east64films-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-east64films-com"
+    },
+    {
+      "index": 18,
+      "url": "https://seedrouter.ai",
+      "target_name": "seedrouter-ai",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/seedrouter-ai"
+    },
+    {
+      "index": 19,
+      "url": "https://reapi.ai/models/gpt-image-2-5",
+      "target_name": "reapi-ai_models-gpt-image-2-5",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/reapi-ai_models-gpt-image-2-5"
+    },
+    {
+      "index": 20,
+      "url": "https://atmos.gallery",
+      "target_name": "atmos-gallery",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/atmos-gallery"
+    },
+    {
+      "index": 21,
+      "url": "https://agnestoth.com",
+      "target_name": "agnestoth-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/agnestoth-com"
+    },
+    {
+      "index": 22,
+      "url": "https://sleutelaar.xyz/",
+      "target_name": "sleutelaar-xyz",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/sleutelaar-xyz"
+    },
+    {
+      "index": 23,
+      "url": "https://www.mathildedechiara.com/",
+      "target_name": "www-mathildedechiara-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-mathildedechiara-com"
+    },
+    {
+      "index": 24,
+      "url": "https://ringpopcandy.com/",
+      "target_name": "ringpopcandy-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/ringpopcandy-com"
+    },
+    {
+      "index": 25,
+      "url": "https://sibaldesign.com/",
+      "target_name": "sibaldesign-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/sibaldesign-com"
+    },
+    {
+      "index": 26,
+      "url": "https://inherited.band/",
+      "target_name": "inherited-band",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/inherited-band"
+    },
+    {
+      "index": 27,
+      "url": "https://bb-b.net",
+      "target_name": "bb-b-net",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/bb-b-net"
+    },
+    {
+      "index": 28,
+      "url": "https://ladolfinajumping.com/",
+      "target_name": "ladolfinajumping-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/ladolfinajumping-com"
+    },
+    {
+      "index": 29,
+      "url": "https://www.peryton-film.com/",
+      "target_name": "www-peryton-film-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-peryton-film-com"
+    },
+    {
+      "index": 30,
+      "url": "https://www.photiu.ai",
+      "target_name": "www-photiu-ai",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-photiu-ai"
+    },
+    {
+      "index": 31,
+      "url": "http://ethanwong.photography",
+      "target_name": "ethanwong-photography",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/ethanwong-photography"
+    },
+    {
+      "index": 32,
+      "url": "https://11moissanstoit.com/",
+      "target_name": "11moissanstoit-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/11moissanstoit-com"
+    },
+    {
+      "index": 33,
+      "url": "https://magicshot.ai",
+      "target_name": "magicshot-ai",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/magicshot-ai"
+    },
+    {
+      "index": 34,
+      "url": "https://www.remyshoots.co.za/",
+      "target_name": "www-remyshoots-co-za",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-remyshoots-co-za"
+    },
+    {
+      "index": 35,
+      "url": "https://www.kaviengcreative.com/",
+      "target_name": "www-kaviengcreative-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-kaviengcreative-com"
+    },
+    {
+      "index": 36,
+      "url": "https://tour-kyrgyzstan.com/",
+      "target_name": "tour-kyrgyzstan-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/tour-kyrgyzstan-com"
+    },
+    {
+      "index": 37,
+      "url": "https://senawastudio.com",
+      "target_name": "senawastudio-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/senawastudio-com"
+    },
+    {
+      "index": 38,
+      "url": "https://www.andriimur.com/",
+      "target_name": "www-andriimur-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-andriimur-com"
+    },
+    {
+      "index": 39,
+      "url": "https://seemecreative.com/",
+      "target_name": "seemecreative-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/seemecreative-com"
+    },
+    {
+      "index": 40,
+      "url": "https://clipdance.ai",
+      "target_name": "clipdance-ai",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/clipdance-ai"
+    },
+    {
+      "index": 41,
+      "url": "https://www.upscayl.app",
+      "target_name": "www-upscayl-app",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-upscayl-app"
+    },
+    {
+      "index": 42,
+      "url": "https://noravale.framer.website/",
+      "target_name": "noravale-framer-website",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/noravale-framer-website"
+    },
+    {
+      "index": 43,
+      "url": "https://www.sigma-imaging.se/",
+      "target_name": "www-sigma-imaging-se",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-sigma-imaging-se"
+    },
+    {
+      "index": 44,
+      "url": "https://layrmedia.com/",
+      "target_name": "layrmedia-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/layrmedia-com"
+    },
+    {
+      "index": 45,
+      "url": "https://palominoprod.com/",
+      "target_name": "palominoprod-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/palominoprod-com"
+    },
+    {
+      "index": 46,
+      "url": "https://www.schemeengine.com/",
+      "target_name": "www-schemeengine-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-schemeengine-com"
+    },
+    {
+      "index": 47,
+      "url": "https://namaha.healthcare",
+      "target_name": "namaha-healthcare",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/namaha-healthcare"
+    },
+    {
+      "index": 48,
+      "url": "https://www.rosshalfin.com",
+      "target_name": "www-rosshalfin-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-rosshalfin-com"
+    },
+    {
+      "index": 49,
+      "url": "https://www.hollywoodexhibit2026.com",
+      "target_name": "www-hollywoodexhibit2026-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-hollywoodexhibit2026-com"
+    },
+    {
+      "index": 50,
+      "url": "https://www.eladiodieste.com/",
+      "target_name": "www-eladiodieste-com",
+      "wiki_dir": "/root/projects/fleet/wiki/targets/www-eladiodieste-com"
+    }
+  ],
+  "failed": [],
+  "current": {
+    "index": 50,
+    "url": "https://www.eladiodieste.com/"
+  },
+  "finished_at": "2026-11-14T14:04:53.031400",
+  "elapsed_seconds": 908.875649690628
+}
