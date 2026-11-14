@@ -48,7 +48,7 @@ def capture_web(
 
     context_kwargs: Dict[str, Any] = {
         "record_har_path": str(har_path),
-        "record_har_content": "embed",
+        "record_har_mode": "minimal",
         "viewport": {"width": 1440, "height": 900},
         "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     }
@@ -65,7 +65,15 @@ def capture_web(
     collected_styles = []
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--js-flags=--max-old-space-size=512",
+            ],
+        )
         context = browser.new_context(**context_kwargs)
         page = context.new_page()
 
@@ -128,10 +136,10 @@ def capture_web(
 
         # Capture screenshot
         try:
-            page.screenshot(path=str(screenshot_path), full_page=True)
+            page.screenshot(path=str(screenshot_path), full_page=True, timeout=8000)
         except Exception:
             try:
-                page.screenshot(path=str(screenshot_path), full_page=False)
+                page.screenshot(path=str(screenshot_path), full_page=False, timeout=5000)
             except Exception:
                 pass
 
@@ -169,6 +177,9 @@ def capture_web(
 
         context.close()
         browser.close()
+
+    import gc
+    gc.collect()
 
     console.print(f"[bold green]✓ Capture complete for [cyan]{name}[/cyan]![/bold green]")
     console.print(f"  • HAR Network Log: {har_path.stat().st_size if har_path.exists() else 0} bytes")

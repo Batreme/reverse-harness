@@ -1,0 +1,439 @@
+{
+  "started_at": "2026-11-14T14:41:43.755965",
+  "checkpoints_total": 5,
+  "checkpoints_completed": 1,
+  "completed_categories": {
+    "design-agencies": {
+      "successful": [
+        {
+          "url": "https://www.romainavalle.dev/",
+          "name": "www-romainavalle-dev"
+        },
+        {
+          "url": "https://www.studioplato.co/",
+          "name": "www-studioplato-co"
+        },
+        {
+          "url": "https://microdose.studio/",
+          "name": "microdose-studio"
+        },
+        {
+          "url": "https://twohalves.co/",
+          "name": "twohalves-co"
+        },
+        {
+          "url": "https://sc-aesthetic-labs.com/",
+          "name": "sc-aesthetic-labs-com"
+        },
+        {
+          "url": "https://houseofgiants.com",
+          "name": "houseofgiants-com"
+        },
+        {
+          "url": "https://recurziv.com",
+          "name": "recurziv-com"
+        },
+        {
+          "url": "http://southandstonestudio.com",
+          "name": "southandstonestudio-com"
+        },
+        {
+          "url": "https://preymaker.com/",
+          "name": "preymaker-com"
+        },
+        {
+          "url": "https://www.ouiwill.com/",
+          "name": "www-ouiwill-com"
+        },
+        {
+          "url": "https://degacsid.com/",
+          "name": "degacsid-com"
+        },
+        {
+          "url": "https://www.tomdekoning.work/",
+          "name": "www-tomdekoning-work"
+        },
+        {
+          "url": "https://halloween.ferayna.com/",
+          "name": "halloween-ferayna-com"
+        },
+        {
+          "url": "https://dsquaredmedia.net",
+          "name": "dsquaredmedia-net"
+        },
+        {
+          "url": "https://b3xgraphics.com/",
+          "name": "b3xgraphics-com"
+        },
+        {
+          "url": "https://thecontenders.co/",
+          "name": "thecontenders-co"
+        },
+        {
+          "url": "https://www.rikoutaku.work/",
+          "name": "www-rikoutaku-work"
+        },
+        {
+          "url": "https://www.plugandplaydesign.co.uk/",
+          "name": "www-plugandplaydesign-co-uk"
+        },
+        {
+          "url": "https://www.lucaslima.design/",
+          "name": "www-lucaslima-design"
+        },
+        {
+          "url": "https://awmedia.marketing/",
+          "name": "awmedia-marketing"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T14:45:51.534523"
+    },
+    "e-commerce": {
+      "successful": [
+        {
+          "url": "https://launch.joinautopilot.com",
+          "name": "launch-joinautopilot-com"
+        },
+        {
+          "url": "https://www.feelreformed.com/",
+          "name": "www-feelreformed-com"
+        },
+        {
+          "url": "https://vault.hyperiux.com",
+          "name": "vault-hyperiux-com"
+        },
+        {
+          "url": "http://lofliballs.com",
+          "name": "lofliballs-com"
+        },
+        {
+          "url": "https://www.nettiesbees.com/",
+          "name": "www-nettiesbees-com"
+        },
+        {
+          "url": "https://johnhardy.com/collections/billie-eilish-and-finneas",
+          "name": "johnhardy-com_collections-billie-eilish-and-finneas"
+        },
+        {
+          "url": "https://about.centra.com",
+          "name": "about-centra-com"
+        },
+        {
+          "url": "https://davidcata.com/en/musica/",
+          "name": "davidcata-com_en-musica"
+        },
+        {
+          "url": "https://traced.life/",
+          "name": "traced-life"
+        },
+        {
+          "url": "http://www.pistacchioecaffe.it",
+          "name": "www-pistacchioecaffe-it"
+        },
+        {
+          "url": "https://seedjewelry.com/",
+          "name": "seedjewelry-com"
+        },
+        {
+          "url": "https://exspeedia.com",
+          "name": "exspeedia-com"
+        },
+        {
+          "url": "https://carnilove.ashfall.studio/",
+          "name": "carnilove-ashfall-studio"
+        },
+        {
+          "url": "https://concretaceramiche.it/",
+          "name": "concretaceramiche-it"
+        },
+        {
+          "url": "https://arcteryx.com/us/en/explore/system0",
+          "name": "arcteryx-com_us-en-explore-system0"
+        },
+        {
+          "url": "https://www.enigmascult.com/",
+          "name": "www-enigmascult-com"
+        },
+        {
+          "url": "https://miligram.pt",
+          "name": "miligram-pt"
+        },
+        {
+          "url": "https://templates-preview.oxvo.app/t/oxvo-original-studio-max-commerce-3d/latest/#/",
+          "name": "templates-preview-oxvo-app_t-oxvo-original-studio-max-commerce-3d-latest"
+        },
+        {
+          "url": "https://www.thecandyvault.com.au/",
+          "name": "www-thecandyvault-com-au"
+        },
+        {
+          "url": "https://palaceskateboards.com/",
+          "name": "palaceskateboards-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T14:53:31.955609"
+    },
+    "architecture": {
+      "successful": [
+        {
+          "url": "https://edisonfangworkshop.com",
+          "name": "edisonfangworkshop-com"
+        },
+        {
+          "url": "https://pda.archi/en",
+          "name": "pda-archi_en"
+        },
+        {
+          "url": "https://nakagawa-corp.com/",
+          "name": "nakagawa-corp-com"
+        },
+        {
+          "url": "https://bcgbuildingdesign.com.au/",
+          "name": "bcgbuildingdesign-com-au"
+        },
+        {
+          "url": "https://patmos.studio/",
+          "name": "patmos-studio"
+        },
+        {
+          "url": "https://www.palaraiffeisen.ch",
+          "name": "www-palaraiffeisen-ch"
+        },
+        {
+          "url": "https://www.aat-architecten.be/",
+          "name": "www-aat-architecten-be"
+        },
+        {
+          "url": "https://belgradearbor.rs/en",
+          "name": "belgradearbor-rs_en"
+        },
+        {
+          "url": "https://montarville.ca/",
+          "name": "montarville-ca"
+        },
+        {
+          "url": "https://www.undplus.com",
+          "name": "www-undplus-com"
+        },
+        {
+          "url": "https://structureengineering.com.au/",
+          "name": "structureengineering-com-au"
+        },
+        {
+          "url": "https://heronaiapp.com/",
+          "name": "heronaiapp-com"
+        },
+        {
+          "url": "https://www.dbydt.space",
+          "name": "www-dbydt-space"
+        },
+        {
+          "url": "https://bybang.co/",
+          "name": "bybang-co"
+        },
+        {
+          "url": "https://lpas.com/",
+          "name": "lpas-com"
+        },
+        {
+          "url": "https://lenvalproperties.com",
+          "name": "lenvalproperties-com"
+        },
+        {
+          "url": "https://rialto.com.au/",
+          "name": "rialto-com-au"
+        },
+        {
+          "url": "https://stillform.homes/",
+          "name": "stillform-homes"
+        },
+        {
+          "url": "https://mejuma-tuscany.com/",
+          "name": "mejuma-tuscany-com"
+        },
+        {
+          "url": "https://santalarch.com",
+          "name": "santalarch-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T15:02:51.034706"
+    },
+    "fashion": {
+      "successful": [
+        {
+          "url": "https://morrow.valerian.studio",
+          "name": "morrow-valerian-studio"
+        },
+        {
+          "url": "https://jjettas.com",
+          "name": "jjettas-com"
+        },
+        {
+          "url": "https://theinfinitysocks.com/",
+          "name": "theinfinitysocks-com"
+        },
+        {
+          "url": "https://gracefashion.ai",
+          "name": "gracefashion-ai"
+        },
+        {
+          "url": "https://vploss.com",
+          "name": "vploss-com"
+        },
+        {
+          "url": "https://davaris.gr/",
+          "name": "davaris-gr"
+        },
+        {
+          "url": "https://kelvin.8b.com/",
+          "name": "kelvin-8b-com"
+        },
+        {
+          "url": "https://www.easyseller.it/",
+          "name": "www-easyseller-it"
+        },
+        {
+          "url": "https://estudioniksen.com/",
+          "name": "estudioniksen-com"
+        },
+        {
+          "url": "https://deadlyponies.com",
+          "name": "deadlyponies-com"
+        },
+        {
+          "url": "https://almadalabel.com/",
+          "name": "almadalabel-com"
+        },
+        {
+          "url": "https://www.cartier.com/en-us/roadster-universe.html",
+          "name": "www-cartier-com_en-us-roadster-universe-html"
+        },
+        {
+          "url": "https://becore.se/",
+          "name": "becore-se"
+        },
+        {
+          "url": "https://switchblade-awwwards.vercel.app/",
+          "name": "switchblade-awwwards-vercel-app"
+        },
+        {
+          "url": "https://www.killstar.com/",
+          "name": "www-killstar-com"
+        },
+        {
+          "url": "https://offform.net/",
+          "name": "offform-net"
+        },
+        {
+          "url": "https://heirest.com/",
+          "name": "heirest-com"
+        },
+        {
+          "url": "https://www.unimaticwatches.com/?srsltid=AfmBOor1S-k1GXW2WUlgmQd-YbKuDQWHeKBxyRjTFNyURmTvXoeNJXHD",
+          "name": "www-unimaticwatches-com"
+        },
+        {
+          "url": "https://thetiebreak.merci-michel.com/",
+          "name": "thetiebreak-merci-michel-com"
+        },
+        {
+          "url": "https://aqualoqa.com/",
+          "name": "aqualoqa-com"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T15:07:27.201576"
+    },
+    "experimental": {
+      "successful": [
+        {
+          "url": "https://abyme.app",
+          "name": "abyme-app"
+        },
+        {
+          "url": "https://akaiito.ai",
+          "name": "akaiito-ai"
+        },
+        {
+          "url": "https://tridentstars.maserati.com/en/",
+          "name": "tridentstars-maserati-com_en"
+        },
+        {
+          "url": "https://departmentofemotions.com/",
+          "name": "departmentofemotions-com"
+        },
+        {
+          "url": "https://matthisgarnier.com",
+          "name": "matthisgarnier-com"
+        },
+        {
+          "url": "https://sadok.mx/",
+          "name": "sadok-mx"
+        },
+        {
+          "url": "https://booleansequence.niceunderground.xyz/",
+          "name": "booleansequence-niceunderground-xyz"
+        },
+        {
+          "url": "https://aviator.yakudoo.games",
+          "name": "aviator-yakudoo-games"
+        },
+        {
+          "url": "https://webdesign.kernjosh.com",
+          "name": "webdesign-kernjosh-com"
+        },
+        {
+          "url": "https://vastworld.ai/",
+          "name": "vastworld-ai"
+        },
+        {
+          "url": "https://www.get-daffed.com/",
+          "name": "www-get-daffed-com"
+        },
+        {
+          "url": "https://skhiladze.com",
+          "name": "skhiladze-com"
+        },
+        {
+          "url": "https://dreams.paulvl.eu/",
+          "name": "dreams-paulvl-eu"
+        },
+        {
+          "url": "https://digitalofthings.studio/",
+          "name": "digitalofthings-studio"
+        },
+        {
+          "url": "https://www.codeofsagar.in/",
+          "name": "www-codeofsagar-in"
+        },
+        {
+          "url": "https://milky.solar",
+          "name": "milky-solar"
+        },
+        {
+          "url": "https://errormade.tech/",
+          "name": "errormade-tech"
+        },
+        {
+          "url": "https://www.emblematica.agency",
+          "name": "www-emblematica-agency"
+        },
+        {
+          "url": "https://jld2nd.dev",
+          "name": "jld2nd-dev"
+        },
+        {
+          "url": "https://jaspreetsingh.xyz/",
+          "name": "jaspreetsingh-xyz"
+        }
+      ],
+      "failed": [],
+      "completed_at": "2026-11-14T15:11:44.477189"
+    }
+  },
+  "total_targets_successful": 100,
+  "total_targets_failed": 0
+}
