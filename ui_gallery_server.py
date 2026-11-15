@@ -1596,8 +1596,9 @@ INDEX_HTML = r"""<!DOCTYPE html>
       if (!md) return '<p>No document content available.</p>';
       // Strip YAML frontmatter
       let text = md.replace(/^---\n[\s\S]*?\n---\n/, '');
-      // Rewrite file:///.../targets/<slug>/assets/<img.png> to /assets/<slug>/<img.png>
+      // Rewrite file:///.../targets/<slug>/assets/<img.png> or relative assets/<img.png> to /assets/<slug>/<img.png>
       text = text.replace(/file:\/\/\/root\/projects\/fleet\/wiki\/targets\/([^/]+)\/assets\/([^\s)]+)/g, '/assets/$1/$2');
+      text = text.replace(/\(assets\/([^\s)]+)\)/g, '(/assets/' + slug + '/$1)');
 
       const lines = text.split('\n');
       let html = '';

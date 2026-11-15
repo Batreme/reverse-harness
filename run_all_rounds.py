@@ -963,7 +963,7 @@ archetype: "{info['archetype']}"
 
 > **{info['title']}** ({info['url']}) — {info['summary']}
 
-![Desktop Viewport Capture ({d_w}x{d_h})](file:///root/projects/fleet/wiki/targets/{slug}/assets/desktop.png)
+![Desktop Viewport Capture ({d_w}x{d_h})](assets/desktop.png)
 
 ---
 
@@ -978,7 +978,7 @@ archetype: "{info['archetype']}"
 
 ## 2. Spatial Architecture & Modular Grid Mathematics
 
-![Mobile Viewport Capture ({m_w}x{m_h})](file:///root/projects/fleet/wiki/targets/{slug}/assets/mobile.png)
+![Mobile Viewport Capture ({m_w}x{m_h})](assets/mobile.png)
 
 ### Viewport Allocation & Container Geometry
 - **Captured Viewport Dimensions**: Desktop `{d_w}×{d_h}px` (`assets/desktop.png`, {d_cap_note}), Mobile `{m_w}×{m_h}px` (`assets/mobile.png`, {m_cap_note}).
