@@ -6,14 +6,16 @@ breakpoints, and DOM landmarks extracted from /root/projects/reverse-harness/raw
 Resolves all findings C1-C13 from claude-loop Round 1 & Round 2 reviews.
 """
 
+import os
 import re
 import struct
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-FLEET_DIR = Path('/root/projects/fleet')
+REVERSE_HARNESS_DIR = Path(__file__).resolve().parent
+FLEET_DIR = Path(os.environ.get('FLEET_ROOT', REVERSE_HARNESS_DIR.parent / 'fleet'))
 TARGETS_DIR = FLEET_DIR / 'wiki' / 'targets'
-RAW_DIR = Path('/root/projects/reverse-harness/raw')
+RAW_DIR = Path(os.environ.get('RAW_DIR', REVERSE_HARNESS_DIR / 'raw'))
 
 def png_dims(path: Path):
     if not path.exists():

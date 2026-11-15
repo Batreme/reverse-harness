@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import json
@@ -6,8 +7,8 @@ from pathlib import Path
 from datetime import datetime
 
 # Setup paths
-PROJECT_ROOT = Path("/root/projects/reverse-harness")
-FLEET_WIKI = Path("/root/projects/fleet/wiki")
+PROJECT_ROOT = Path(__file__).resolve().parent
+FLEET_WIKI = Path(os.environ.get("FLEET_ROOT", PROJECT_ROOT.parent / "fleet")) / "wiki"
 TARGETS_DIR = FLEET_WIKI / "targets"
 TARGETS_FILE = PROJECT_ROOT / "targets_50.txt"
 PROGRESS_FILE = PROJECT_ROOT / "batch_progress.json"

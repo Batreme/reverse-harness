@@ -86,8 +86,6 @@ def main():
 
             d_png = TARGETS_DIR / s / 'assets' / 'desktop.png'
             m_png = TARGETS_DIR / s / 'assets' / 'mobile.png'
-            if d_png.exists(): total_existing_pngs += 1
-            if m_png.exists(): total_existing_pngs += 1
 
             if s in blocked_slugs:
                 total_blocked += 1
@@ -97,6 +95,9 @@ def main():
                     f"| {global_idx} | **Round {rnum:02d}**<br>[round-{rnum:02d}-trace](traces/round-{rnum:02d}-trace.md) | [{s}](targets/{s}/overview.md) | `status: blocked` ({breason[:50]}) | `blocked` | `blocked` | `—` | **Excluded (C1)** | [Blocked Note](targets/{s}/prompt-blueprint.md) · [Overview](targets/{s}/overview.md) |"
                 )
                 continue
+
+            if d_png.exists(): total_existing_pngs += 1
+            if m_png.exists(): total_existing_pngs += 1
 
             res = evaluate_target(s, line_sets, word_sets)
             total_analyzed += 1

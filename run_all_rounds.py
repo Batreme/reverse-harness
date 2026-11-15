@@ -210,7 +210,7 @@ block_reason: "{reason}"
 > **Production URL**: [{url}]({url})  
 > **Block / Unreachable Reason**: {reason}
 
-This target's raw capture in `/root/projects/reverse-harness/raw/{slug}/` terminated at an upstream edge WAF challenge, anti-bot verification gate, or origin HTTP error. Per strict anti-bot and ground-truth integrity rules, no synthetic or invented design tokens have been fabricated for this target, and it is excluded from the `25.0` evaluation tally.
+This target's raw capture in `raw/{slug}/` terminated at an upstream edge WAF challenge, anti-bot verification gate, or origin HTTP error. Per strict anti-bot and ground-truth integrity rules, no synthetic or invented design tokens have been fabricated for this target, and it is excluded from the `25.0` evaluation tally.
 """
     (TARGETS_DIR / slug / 'ui-ux.md').write_text(ui_md, encoding='utf-8')
 
@@ -220,6 +220,8 @@ date: 2026-11-15
 target: "{slug}"
 status: blocked
 capture: none
+capture_desktop: none
+capture_mobile: none
 block_reason: "{reason}"
 archetype: "Blocked / WAF-Gated Target (Excluded from Tally)"
 ---
@@ -954,12 +956,16 @@ def write_ui_ux_and_blueprint(slug: str, info: dict, d_dims: tuple[int, int, int
     diffs_md = sanitize_sec7_hexes(diffs_md)
 
     capture_val = "specimen" if (d_spec or m_spec) else "dom"
+    d_mode = "specimen" if d_spec else "dom"
+    m_mode = "specimen" if m_spec else "dom"
     bp_md = f"""---
 title: "UI Prompt Blueprint: {slug}"
 date: 2026-11-15
 target: "{slug}"
 status: analyzed
 capture: {capture_val}
+capture_desktop: {d_mode}
+capture_mobile: {m_mode}
 archetype: "{info['archetype']}"
 ---
 

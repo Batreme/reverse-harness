@@ -83,3 +83,5 @@ uv run reverse-harness route "analyze encrypted flutter android apk"
 
 Non-Commercial Software License. Copyright (c) 2026 Jakub Szkop (Batreme). All rights reserved.  
 See [`LICENSE`](LICENSE) for complete terms. For commercial licensing inquiries, contact: Jakub Szkop `<szkopjakub@gmail.com>`.
+
+All third-party trademarks, brand names, copy, and visual designs referenced in reverse-engineered target dossiers remain the property of their respective owners and are cataloged strictly for non-commercial educational and research analysis.

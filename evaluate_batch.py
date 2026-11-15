@@ -101,13 +101,31 @@ def evaluate_target(target_name: str, all_line_sets: Dict[str, set], all_word_se
         issues.append(f"Exact PNG dimensions ({d_w}x{d_h}, {m_w}x{m_h}) not documented in blueprint")
 
     cap_m = re.search(r'^capture:\s*(dom|specimen|none)', bp_content, re.MULTILINE)
-    if not cap_m:
+    cap_d_m = re.search(r'^capture_desktop:\s*(dom|specimen|none)', bp_content, re.MULTILINE)
+    cap_m_m = re.search(r'^capture_mobile:\s*(dom|specimen|none)', bp_content, re.MULTILINE)
+    if not cap_m or not cap_d_m or not cap_m_m:
         asset_score -= 1.0
-        issues.append("Missing or invalid 'capture: dom | specimen | none' in frontmatter")
-    elif cap_m.group(1) == 'specimen':
-        if 'Design Specimen (Offline WebGL/JS Fallback — not live site capture)' not in bp_content:
-            asset_score -= 1.0
-            issues.append("Target marked 'capture: specimen' but lacks honest specimen caption")
+        issues.append("Missing or invalid capture provenance frontmatter (capture, capture_desktop, capture_mobile)")
+    else:
+        d_mode = cap_d_m.group(1)
+        m_mode = cap_m_m.group(1)
+        if d_mode == 'specimen':
+            if 'Desktop Design Specimen (Offline WebGL/JS Fallback — not live site capture)' not in bp_content:
+                asset_score -= 1.0
+                issues.append("Desktop marked 'capture_desktop: specimen' but lacks honest specimen caption")
+        elif d_mode == 'dom':
+            if 'Desktop Viewport Capture' not in bp_content:
+                asset_score -= 1.0
+                issues.append("Desktop marked 'capture_desktop: dom' but lacks 'Desktop Viewport Capture' caption")
+
+        if m_mode == 'specimen':
+            if 'Mobile Design Specimen (Offline WebGL/JS Fallback — not live site capture)' not in bp_content:
+                asset_score -= 1.0
+                issues.append("Mobile marked 'capture_mobile: specimen' but lacks honest specimen caption")
+        elif m_mode == 'dom':
+            if 'Mobile Viewport Capture' not in bp_content:
+                asset_score -= 1.0
+                issues.append("Mobile marked 'capture_mobile: dom' but lacks 'Mobile Viewport Capture' caption")
     scores['visual_assets'] = max(0.0, asset_score)
 
     # 2. Token Hygiene, Traceable Citations & Block-Page Check (0-5) — enforces C1, C2, C3, C5, C14

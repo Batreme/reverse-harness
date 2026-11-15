@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import json
@@ -9,8 +10,8 @@ from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from bs4 import BeautifulSoup
 
-PROJECT_ROOT = Path("/root/projects/reverse-harness")
-FLEET_ROOT = Path("/root/projects/fleet")
+PROJECT_ROOT = Path(__file__).resolve().parent
+FLEET_ROOT = Path(os.environ.get("FLEET_ROOT", PROJECT_ROOT.parent / "fleet"))
 FLEET_WIKI = FLEET_ROOT / "wiki"
 TARGETS_DIR = FLEET_WIKI / "targets"
 PROGRESS_FILE = PROJECT_ROOT / "category_progress.json"
