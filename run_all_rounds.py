@@ -29,10 +29,11 @@ import time
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
-FLEET_WIKI = pathlib.Path('/root/projects/fleet/wiki')
+REVERSE_HARNESS_DIR = pathlib.Path(__file__).resolve().parent
+FLEET_WIKI = pathlib.Path(os.environ.get('FLEET_ROOT', REVERSE_HARNESS_DIR.parent / 'fleet')) / 'wiki'
 TARGETS_DIR = FLEET_WIKI / 'targets'
 TRACES_DIR = FLEET_WIKI / 'traces'
-RAW_DIR = pathlib.Path('/root/projects/reverse-harness/raw')
+RAW_DIR = pathlib.Path(os.environ.get('RAW_DIR', REVERSE_HARNESS_DIR / 'raw'))
 
 ROUND_1_SLUGS = [
     'dennypratama-com',
@@ -216,8 +217,9 @@ This target's raw capture in `/root/projects/reverse-harness/raw/{slug}/` termin
     bp_md = f"""---
 title: "UI Prompt Blueprint: {slug}"
 date: 2026-11-15
-target: "[[overview|{slug}]]"
+target: "{slug}"
 status: blocked
+capture: none
 block_reason: "{reason}"
 archetype: "Blocked / WAF-Gated Target (Excluded from Tally)"
 ---
@@ -951,11 +953,13 @@ def write_ui_ux_and_blueprint(slug: str, info: dict, d_dims: tuple[int, int, int
     sec7_copy = sanitize_sec7_hexes(sec7_copy)
     diffs_md = sanitize_sec7_hexes(diffs_md)
 
+    capture_val = "specimen" if (d_spec or m_spec) else "dom"
     bp_md = f"""---
 title: "UI Prompt Blueprint: {slug}"
 date: 2026-11-15
-target: "[[overview|{slug}]]"
+target: "{slug}"
 status: analyzed
+capture: {capture_val}
 archetype: "{info['archetype']}"
 ---
 
@@ -1114,7 +1118,7 @@ Scaffold `{slug}` (`{info['title']}`) with these exact structural regions, extra
     if ov_path.exists():
         ov_txt = ov_path.read_text(encoding='utf-8', errors='ignore')
         if 'prompt-blueprint' not in ov_txt:
-            ov_txt = ov_txt.rstrip() + "\n- **[[prompt-blueprint|UI Prompt Blueprint]]** — 7-part design system analysis, desktop/mobile visual captures, and zero-shot generation prompt.\n"
+            ov_txt = ov_txt.rstrip() + "\n- **[UI Prompt Blueprint](prompt-blueprint.md)** — 7-part design system analysis, desktop/mobile visual captures, and zero-shot generation prompt.\n"
             ov_path.write_text(ov_txt, encoding='utf-8')
 
     m = re.search(r'## 7\..*?\n```[a-zA-Z]*\n(.*?)\n```', bp_md, flags=re.S)

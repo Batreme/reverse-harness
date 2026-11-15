@@ -9,6 +9,7 @@ Upgraded per claude-loop C1-C14 to verify:
 5. Master Prompt Generability & Uniqueness (0-5 pts) — Single unsplit fenced Master Prompt >= 80 lines (C10), plus documented line-level and word-level Jaccard uniqueness (C13)
 """
 
+import os
 import re
 import struct
 import sys
@@ -21,9 +22,9 @@ TARGETS = [
     'www-unimaticwatches-com', 'seedjewelry-com'
 ]
 
-FLEET_DIR = Path('/root/projects/fleet')
+FLEET_DIR = Path(os.environ.get('FLEET_ROOT', Path(__file__).resolve().parent.parent / 'fleet'))
 TARGETS_DIR = FLEET_DIR / 'wiki' / 'targets'
-RAW_DIR = Path('/root/projects/reverse-harness/raw')
+RAW_DIR = Path(os.environ.get('RAW_DIR', Path(__file__).resolve().parent / 'raw'))
 
 BLOCK_PAGE_PATTERNS = re.compile(
     r'Access Denied|Checking your browser|Confirm you are human|Vercel Security Checkpoint|'
@@ -92,11 +93,22 @@ def evaluate_target(target_name: str, all_line_sets: Dict[str, set], all_word_se
         asset_score += 2.0
     else:
         issues.append(f"Mobile PNG must be 390x(>=1200) and >=30KB, got {m_w}x{m_h} ({m_sz}B)")
-    if f"{d_w}x{d_h}" in bp_content and f"{m_w}x{m_h}" in bp_content:
+    has_dw = (f"{d_w}x{d_h}" in bp_content or f"{d_w}×{d_h}" in bp_content)
+    has_mw = (f"{m_w}x{m_h}" in bp_content or f"{m_w}×{m_h}" in bp_content)
+    if has_dw and has_mw:
         asset_score += 1.0
     else:
         issues.append(f"Exact PNG dimensions ({d_w}x{d_h}, {m_w}x{m_h}) not documented in blueprint")
-    scores['visual_assets'] = asset_score
+
+    cap_m = re.search(r'^capture:\s*(dom|specimen|none)', bp_content, re.MULTILINE)
+    if not cap_m:
+        asset_score -= 1.0
+        issues.append("Missing or invalid 'capture: dom | specimen | none' in frontmatter")
+    elif cap_m.group(1) == 'specimen':
+        if 'Design Specimen (Offline WebGL/JS Fallback — not live site capture)' not in bp_content:
+            asset_score -= 1.0
+            issues.append("Target marked 'capture: specimen' but lacks honest specimen caption")
+    scores['visual_assets'] = max(0.0, asset_score)
 
     # 2. Token Hygiene, Traceable Citations & Block-Page Check (0-5) — enforces C1, C2, C3, C5, C14
     token_score = 5.0

@@ -43,12 +43,13 @@ Process the captured HAR, unpack source maps, extract REST/GraphQL schemas and C
 ```bash
 uv run reverse-harness analyze "my-app"
 ```
-This generates the standardized 5-document dossier in `fleet/wiki/targets/my-app/`:
+This generates the standardized dossier in `fleet/wiki/targets/my-app/`:
 - `overview.md`: Architecture summary, framework fingerprint, metadata.
 - `apis.md`: Endpoint catalog and inferred JSON schemas.
 - `data-models.md`: Client storage (LocalStorage/IndexedDB) and entity structures.
 - `ui-ux.md`: Component primitives and CSS custom property design tokens.
 - `source-maps.md`: Reconstructed client source trees.
+- `prompt-blueprint.md`: 7-part UI design system analysis, viewport captures (`assets/desktop.png` and `assets/mobile.png`), and Section 7 Master Zero-Shot AI Generation Prompt.
 
 ### 4. Index Knowledge Base
 Sync all dossiers into the local SQLite database with `sqlite-vec` vector embeddings:
@@ -68,3 +69,17 @@ Route general reverse engineering, APK, binary, or CTF tasks through the upstrea
 ```bash
 uv run reverse-harness route "analyze encrypted flutter android apk"
 ```
+
+### 7. UI Prompt Blueprint & Evaluation Tools
+- **`run_all_rounds.py`**: Full-catalog 58-round orchestrator extracting ground-truth design tokens, typography, motion physics, DOM wireframes, and Section 7 master zero-shot generation prompts.
+- **`evaluate_batch.py --all`**: Upgraded 14-point deterministic truth, entropy, type-scale, and citation evaluation suite (`C1`–`C14`).
+- **`build_full_dashboard.py`**: Builds the complete 575-target / 58-round `UI_EVALS_DASHBOARD.md` scorecard with 1-click clickable GitHub links and honest capture breakdown.
+- **`ui_gallery_server.py`**: Interactive local web application (`http://localhost:8080`) serving the visual target grid, side-by-side screenshot viewer, color palette swatches, and prompt inspector.
+- **`tests/test_catalog_integrity.py`**: Comprehensive test suite verifying repo boundaries, relative symlinks, local Markdown link integrity, PNG dimensions, honest capture labeling, and evaluation logic.
+
+---
+
+## License
+
+Non-Commercial Software License. Copyright (c) 2026 Jakub Szkop (Batreme). All rights reserved.  
+See [`LICENSE`](LICENSE) for complete terms. For commercial licensing inquiries, contact: Jakub Szkop `<szkopjakub@gmail.com>`.

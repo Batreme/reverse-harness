@@ -25,7 +25,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-FLEET_WIKI = Path("/root/projects/fleet/wiki")
+REVERSE_HARNESS_DIR = Path(__file__).resolve().parent
+FLEET_WIKI = Path(os.environ.get("FLEET_ROOT", REVERSE_HARNESS_DIR.parent / "fleet")) / "wiki"
 TARGETS_DIR = FLEET_WIKI / "targets"
 TRACES_DIR = FLEET_WIKI / "traces"
 DASHBOARD_MD_PATH = FLEET_WIKI / "UI_EVALS_DASHBOARD.md"
