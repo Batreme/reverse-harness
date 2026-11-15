@@ -68,7 +68,7 @@ def main():
                 b_m = re.search(r'^block_reason:\s*"([^"]+)"', bp_txt, re.MULTILINE)
                 breason = b_m.group(1) if b_m else "Upstream WAF / HTTP Block"
                 target_rows.append(
-                    f"| {global_idx} | `R{rnum:02d}` | [[targets/{s}/overview\\|{s}]] | `status: blocked` ({breason[:50]}) | `blocked` | `blocked` | `—` | **Excluded (C1)** | [[targets/{s}/prompt-blueprint\\|Blocked Note]] |"
+                    f"| {global_idx} | **Round {rnum:02d}**<br>[round-{rnum:02d}-trace](traces/round-{rnum:02d}-trace.md) | [{s}](targets/{s}/overview.md) | `status: blocked` ({breason[:50]}) | `blocked` | `blocked` | `—` | **Excluded (C1)** | [Blocked Note](targets/{s}/prompt-blueprint.md) · [Overview](targets/{s}/overview.md) |"
                 )
                 continue
             res = evaluate_target(s, line_sets, word_sets)
@@ -83,12 +83,12 @@ def main():
             if len(arch_short) > 64:
                 arch_short = arch_short[:61] + "..."
             target_rows.append(
-                f"| {global_idx} | `R{rnum:02d}` | [[targets/{s}/overview\\|{s}]] | {arch_short} | `{dw}×{dh}` ({dsz//1024}KB) | `{mw}×{mh}` ({msz//1024}KB) | `{res['fenced_lines']}L` | **{res['total']:.1f} / 25** | [[targets/{s}/prompt-blueprint\\|Blueprint]] · [[targets/{s}/ui-ux\\|Tokens]] |"
+                f"| {global_idx} | **Round {rnum:02d}**<br>[round-{rnum:02d}-trace](traces/round-{rnum:02d}-trace.md) | [{s}](targets/{s}/overview.md) | {arch_short} | `{dw}×{dh}` ({dsz//1024}KB) | `{mw}×{mh}` ({msz//1024}KB) | `{res['fenced_lines']}L` | **{res['total']:.1f} / 25** | [Prompt & Blueprint](targets/{s}/prompt-blueprint.md#7-master-zero-shot-ai-generation-prompt) · [Tokens](targets/{s}/ui-ux.md) |"
             )
 
         avg_r = sum(r_scores) / len(r_scores) if r_scores else 25.0
         round_summary_rows.append(
-            f"| **Round {rnum:02d}** | `{len(active_slugs)}` (+`{len(blocked_slugs)}` blocked) | `{rslugs[0]}` .. `{rslugs[-1]}` | **{avg_r:.1f} / 25.0** | `{r_max_lj:.2f}` | [[traces/round-{rnum:02d}-trace\\|round-{rnum:02d}-trace]] |"
+            f"| **Round {rnum:02d}** | `{len(active_slugs)}` (+`{len(blocked_slugs)}` blocked) | `{rslugs[0]}` .. `{rslugs[-1]}` | **{avg_r:.1f} / 25.0** | `{r_max_lj:.2f}` | [round-{rnum:02d}-trace](traces/round-{rnum:02d}-trace.md) |"
         )
 
     round_table = "\n".join(round_summary_rows)
@@ -96,7 +96,9 @@ def main():
 
     dash_md = f"""# UI Design & Prompt Evaluation Dashboard (Full 575-Target Catalog)
 
-> Central Obsidian dashboard tracking the reverse-engineering transformation of all **575 cataloged web properties** across **58 Execution Rounds** into ground-truth AI UI Prompt Blueprints (`prompt-blueprint.md`), paired with `1440px` desktop and `390px` mobile captures (`assets/desktop.png`, `assets/mobile.png`, capped at `2400px` or full scroll height), validated by deterministic consistency & entropy checks (`evaluate_batch.py`, `C1`–`C14`) and multi-round Anthropic Claude review (`claude-loop`).
+[INDEX](INDEX.md) · [ui-prompt-designer](../skills/ui-prompt-designer/SKILL.md) · [claude-loop](../skills/claude-loop/SKILL.md)
+
+> Central dashboard tracking the reverse-engineering transformation of all **575 cataloged web properties** across **58 Execution Rounds** into ground-truth AI UI Prompt Blueprints (`prompt-blueprint.md`), paired with `1440px` desktop and `390px` mobile captures (`assets/desktop.png`, `assets/mobile.png`, capped at `2400px` or full scroll height), validated by deterministic consistency & entropy checks (`evaluate_batch.py`, `C1`–`C14`) and multi-round Anthropic Claude review ([`claude-loop`](../skills/claude-loop/SKILL.md)).
 
 ---
 
@@ -108,7 +110,7 @@ def main():
 | **Visual Assets (`desktop.png` + `mobile.png`)** | **{total_analyzed * 2} Verified PNGs (`>= 40KB` / `>= 30KB`)** | {total_analyzed * 2} PNGs | **`1440px` & `390px` (Capped at `2400px` or Full Scroll Height, Zero Blank Frames)** |
 | **Deterministic `C1`–`C14` Truth Eval** | **{total_perfect} / {total_analyzed} at `25.0 / 25.0`** | >= 23.0 avg | **100% of Analyzable Targets Passing (`25.0 / 25.0` Average)** |
 | **Master Prompt Unsplit Fence Length** | **94–110 lines** | >= 80 lines | **Single Unsplit Fenced Block Verified** |
-| **Execution Audit Traces (`wiki/traces/`)** | **58 / 58 Traces** | 58 | **[[traces/round-01-trace\\|Round 01]] .. [[traces/round-58-trace\\|Round 58]] Logged** |
+| **Execution Audit Traces (`wiki/traces/`)** | **58 / 58 Traces** | 58 | **[round-01-trace](traces/round-01-trace.md) .. [round-58-trace](traces/round-58-trace.md) Logged** |
 | **Anthropic Reviewer (`claude-loop`)** | `claude-sonnet-5-5-high` | `VERDICT: APPROVE` | {reviewer_status} |
 
 ---
