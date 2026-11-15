@@ -1,11 +1,14 @@
+import os
 import re
 import urllib.request
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from pathlib import Path
 
-WIKI_TARGETS_DIR = Path("/root/projects/fleet/wiki/targets")
-OUTPUT_FILE = Path("/root/projects/reverse-harness/targets_50.txt")
+REVERSE_HARNESS_DIR = Path(__file__).resolve().parent
+FLEET_WIKI = Path(os.environ.get("FLEET_ROOT", REVERSE_HARNESS_DIR.parent / "fleet")) / "wiki"
+WIKI_TARGETS_DIR = FLEET_WIKI / "targets"
+OUTPUT_FILE = REVERSE_HARNESS_DIR / "targets_50.txt"
 
 # Get existing domains/slugs
 existing_targets = set()
