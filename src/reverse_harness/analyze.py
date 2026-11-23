@@ -229,11 +229,27 @@ def analyze_target(
 
     # 2. Extract APIs, Source Maps, and UI Tokens
     apis = parse_har_apis(target_raw / "traffic.har")
+    if not apis and (target_raw / "network_apis.json").exists():
+        try:
+            apis = json.loads((target_raw / "network_apis.json").read_text(encoding="utf-8"))
+        except Exception:
+            apis = []
     source_maps = parse_source_maps(target_raw / "scripts")
     ui_data = extract_dom_and_css_tokens(target_raw / "dom.html", target_raw / "styles")
 
     target_url = metadata.get("url", f"https://{target_name}")
+    final_url = metadata.get("final_url") or target_url
+    status = metadata.get("status", "analyzed")
+    http_status = metadata.get("http_status")
+    capture_tier = metadata.get("capture_tier", "live")
+    block_reason = metadata.get("block_reason")
     today = datetime.now().strftime("%Y-%m-%d")
+
+    initial_host = urlparse(target_url).netloc.lower()
+    final_host = urlparse(final_url).netloc.lower()
+    redirect_line = f"- **Final Redirected URL**: [{final_url}]({final_url})\n" if (final_host and initial_host and final_host != initial_host) else ""
+    http_status_str = str(http_status) if http_status is not None else "N/A"
+    block_line = f"- **Block / Unreachable Reason**: {block_reason}\n" if block_reason else ""
 
     # Document 1: overview.md
     frameworks_str = ", ".join(ui_data.get("frameworks", [])) or "Modern Web Application"
@@ -241,7 +257,10 @@ def analyze_target(
 title: "Target Overview: {target_name}"
 date: {today}
 url: "{target_url}"
-status: analyzed
+final_url: "{final_url}"
+status: {status}
+http_status: {http_status if http_status is not None else "null"}
+capture_tier: {capture_tier}
 tags:
   - target
   - reverse-engineering
@@ -252,16 +271,18 @@ auth_required: {str(bool(metadata.get('auth_profile'))).lower()}
 # Target Overview: {target_name}
 
 ## 🧭 Dossier Navigation
-- [[apis|Discovered APIs & Network Protocols]]
-- [[data-models|Data Models & Local State]]
-- [[ui-ux|UI Architecture & Design Tokens]]
-- [[source-maps|De-obfuscated Source Maps]]
+- [Discovered APIs & Network Protocols](apis.md)
+- [Data Models & Local State](data-models.md)
+- [UI Architecture & Design Tokens](ui-ux.md)
+- [UI Prompt Blueprint](prompt-blueprint.md)
+- [De-obfuscated Source Maps](source-maps.md)
 
 ---
 
 ## 🏗️ Architecture & Stack Fingerprint
-- **Target URL**: `{target_url}`
-- **Page Title**: {metadata.get('title', 'N/A')}
+- **Target URL**: [{target_url}]({target_url})
+{redirect_line}- **HTTP Status**: `{http_status_str}` (`capture_tier: {capture_tier}`)
+{block_line}- **Page Title**: {metadata.get('title') or 'N/A'}
 - **Identified Frameworks**: {frameworks_str}
 - **Auth Profile Used**: {metadata.get('auth_profile') or 'None (Public session)'}
 - **Recorded API Endpoints**: {len(apis)}
@@ -271,8 +292,8 @@ auth_required: {str(bool(metadata.get('auth_profile'))).lower()}
 ---
 
 ## 💡 Key Architectural Lessons (Anti-AI-Slop Insights)
-- **Domain Modeling**: See [[data-models]] for concrete entity structures observed in network requests and local storage.
-- **Client Architecture**: Inferred from UI layout primitives and client storage persistence.
+- **Domain Modeling**: See [data-models.md](data-models.md) for concrete entity structures observed in network requests and local storage.
+- **UI & Design System**: See [ui-ux.md](ui-ux.md) and [prompt-blueprint.md](prompt-blueprint.md) for live computed design tokens and viewport captures.
 """
     (target_wiki / "overview.md").write_text(overview_content, encoding="utf-8")
 
@@ -281,10 +302,10 @@ auth_required: {str(bool(metadata.get('auth_profile'))).lower()}
     for a in apis[:30]:
         method = a.get("method")
         path = a.get("path")
-        status = a.get("status")
+        status_code = a.get("status")
         gop = a.get("graphql_op")
         desc = f"GraphQL: `{gop}`" if gop else "REST endpoint"
-        apis_md_rows.append(f"| `{method}` | `{path}` | `{status}` | {desc} |")
+        apis_md_rows.append(f"| `{method}` | `{path}` | `{status_code}` | {desc} |")
 
     apis_table = "\n".join(apis_md_rows) if apis_md_rows else "*No API endpoints captured in session.*"
 
@@ -296,10 +317,12 @@ auth_required: {str(bool(metadata.get('auth_profile'))).lower()}
     apis_content = f"""---
 title: "APIs & Protocols: {target_name}"
 date: {today}
-target: "[[overview|{target_name}]]"
+target: "{target_name}"
 ---
 
 # Discovered APIs & Protocols: {target_name}
+
+[Back to Overview](overview.md)
 
 ## 📡 Endpoint Catalog
 
@@ -325,10 +348,12 @@ target: "[[overview|{target_name}]]"
     data_models_content = f"""---
 title: "Data Models & Local State: {target_name}"
 date: {today}
-target: "[[overview|{target_name}]]"
+target: "{target_name}"
 ---
 
 # Data Models & Client Storage: {target_name}
+
+[Back to Overview](overview.md)
 
 ## 🗄️ Inferred Client State (LocalStorage / SessionStorage)
 
@@ -358,10 +383,12 @@ Total LocalStorage Keys: `{len(local_storage)}`
     ui_content = f"""---
 title: "UI & Design System: {target_name}"
 date: {today}
-target: "[[overview|{target_name}]]"
+target: "{target_name}"
 ---
 
 # UI Architecture & Design Tokens: {target_name}
+
+[Back to Overview](overview.md)
 
 ## 🎨 Design Tokens (CSS Variables)
 
@@ -388,14 +415,17 @@ target: "[[overview|{target_name}]]"
     source_maps_content = f"""---
 title: "Source Maps & Client AST: {target_name}"
 date: {today}
-target: "[[overview|{target_name}]]"
+target: "{target_name}"
 ---
 
 # De-obfuscated Source Maps: {target_name}
+
+[Back to Overview](overview.md)
 
 {"".join(source_map_blocks) if source_map_blocks else "*No source maps discovered or unpacked for this target.*"}
 """
     (target_wiki / "source-maps.md").write_text(source_maps_content, encoding="utf-8")
 
-    console.print(f"[bold green]✓ Generated 5 Obsidian dossier files in:[/bold green] [cyan]{target_wiki}[/cyan]")
+    console.print(f"[bold green]✓ Generated 5 dossier files in:[/bold green] [cyan]{target_wiki}[/cyan]")
+    return target_wiki
     return target_wiki

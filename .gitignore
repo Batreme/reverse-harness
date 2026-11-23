@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 
 # Local runtime data
+.cache/
 .sessions/
 raw/
 storage/*.sqlite
