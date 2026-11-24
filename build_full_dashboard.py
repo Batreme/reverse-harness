@@ -23,6 +23,8 @@ if str(SRC_DIR) not in sys.path:
 if str(REVERSE_HARNESS_DIR) not in sys.path:
     sys.path.insert(0, str(REVERSE_HARNESS_DIR))
 
+from PIL import Image
+
 from evaluate_batch import (
     TARGETS as ROUND_1_SLUGS,
     TARGETS_DIR,
@@ -56,7 +58,9 @@ def classify_non_analyzed_reason(block_reason: str) -> str:
             "browser compatibility gate",
             "capture deadline exceeded",
             "screenshot capture failed",
+            "behavioral capture failed",
             "invalid live png dimensions",
+            "invalid webp",
         )
     ):
         return "capture_incomplete"
@@ -72,7 +76,11 @@ def png_dims(path: pathlib.Path) -> tuple[int, int, int]:
         if len(d) >= 24 and d[:8] == b"\x89PNG\r\n\x1a\n" and d[12:16] == b"IHDR":
             w, h = struct.unpack(">II", d[16:24])
             return (w, h, sz)
-    return (0, 0, sz)
+    try:
+        with Image.open(path) as im:
+            return (int(im.width), int(im.height), sz)
+    except Exception:
+        return (0, 0, sz)
 
 
 def main() -> None:
@@ -142,8 +150,10 @@ def main() -> None:
             tier_m = re.search(r"^capture_tier:\s*(\S+)", fm, re.MULTILINE)
             tier_val = tier_m.group(1) if tier_m else "unknown"
 
-            d_png = TARGETS_DIR / s / "assets" / "desktop.png"
-            m_png = TARGETS_DIR / s / "assets" / "mobile.png"
+            adir = TARGETS_DIR / s / "assets"
+            is_v2 = bool(re.search(r"^capture_mode:\s*behavioral_journey_v2\b", fm, re.MULTILINE))
+            d_png = adir / "desktop-journey.webp" if is_v2 else (adir / "desktop.png")
+            m_png = adir / "mobile-journey.webp" if is_v2 else (adir / "mobile.png")
 
             if s in blocked_slugs:
                 total_blocked += 1
@@ -231,7 +241,7 @@ def main() -> None:
 
 [INDEX](INDEX.md) · [ui-prompt-designer](../skills/ui-prompt-designer/SKILL.md) · [claude-loop](../skills/claude-loop/SKILL.md)
 
-> Central dashboard tracking the live reverse-engineering transformation of all **{len(all_slugs)} cataloged web properties** across **{len(rounds)} Execution Rounds** into ground-truth AI UI Prompt Blueprints (`prompt-blueprint.md`), paired with live `1440×[900..2400]` desktop and `390×[844..2400]` mobile Playwright captures (`assets/desktop.png`, `assets/mobile.png`) and live `computed_styles.json` tokens, validated by deterministic consistency, visual-health & provenance checks (`evaluate_batch.py`, `C1`–`C15`) and multi-round Anthropic Claude review ([`claude-loop`](../skills/claude-loop/SKILL.md)).
+> Central dashboard tracking the live reverse-engineering transformation of all **{len(all_slugs)} cataloged web properties** across **{len(rounds)} Execution Rounds** into ground-truth AI UI Prompt Blueprints (`prompt-blueprint.md`), paired with live top-to-bottom WebP (`q=82`) behavioral journey filmstrips (`assets/desktop-journey.webp`, `assets/mobile-journey.webp`), individual scroll keyframes, interactive probes, subpage filmstrips, and live `computed_styles.json` tokens, validated by deterministic consistency, visual-health & provenance checks (`evaluate_batch.py`, `C1`–`C15`) and multi-round Anthropic Claude review ([`claude-loop`](../skills/claude-loop/SKILL.md)).
 
 ---
 
@@ -240,16 +250,16 @@ def main() -> None:
 | Metric | Current Value | Target Goal | Status |
 | :--- | :--- | :--- | :--- |
 | **Total Catalog Targets Audited** | **{len(all_slugs)} (`{total_analyzed}` Live Analyzed · `{total_site_blocked}` Site-Blocked / Dead · `{total_capture_incomplete}` Capture-Incomplete)** | {len(all_slugs)} | **100% Catalog Audited (`{total_blocked_clean}/{total_blocked}` Non-Analyzed Targets C15-Clean, Excluded per `C1`)** |
-| **Non-Analyzed Breakdown (`status: blocked`)** | **`{total_site_blocked}` Site-Blocked / Dead · `{total_capture_incomplete}` Capture-Incomplete (`{total_blocked}` Total)** | Transparent Split (`R8`) | **Site-Blocked: HTTP 4xx/5xx, WAF/Cloudflare/Akamai/CloudFront, DNS/empty/placeholder · Capture-Incomplete: Headless Preloader/Blank Viewport, WebGPU/Browser Gate, 150s Render Deadline Timeout** |
+| **Non-Analyzed Breakdown (`status: blocked`)** | **`{total_site_blocked}` Site-Blocked / Dead · `{total_capture_incomplete}` Capture-Incomplete (`{total_blocked}` Total)** | Transparent Split (`R8`) | **Site-Blocked: HTTP 4xx/5xx, WAF/Cloudflare/Akamai/CloudFront, DNS/empty/placeholder · Capture-Incomplete: Headless Preloader/Blank Viewport, WebGPU/Browser Gate, Behavioral Capture Failure / Deadline Timeout** |
 | **Live Capture Provenance Breakdown** | **`{total_live_captures}` Live (`capture: live`) · `{total_specimen_captures}` Synthetic Specimens · `{total_blocked}` Non-Analyzed** | 0 Specimens | **`tier1_fast`: `{tier_counts['tier1_fast']}` · `tier2_webgl`: `{tier_counts['tier2_webgl']}` · `tier3_http1`: `{tier_counts['tier3_http1']}`** |
-| **Visual Assets (`desktop.png` + `mobile.png`)** | **{total_existing_pngs} Live Verified PNGs (`{len(dup_hashes)}` Global Duplicate Hashes)** | {total_analyzed * 2} PNGs | **Desktop `1440×[{min_dh}..{max_dh}]px` (median `{median_dh}px`) · Mobile `390×[{min_mh}..{max_mh}]px` (median `{median_mh}px`)** |
+| **Visual Assets (`desktop-journey.webp` + `mobile-journey.webp`)** | **{total_existing_pngs} Live Verified WebP Filmstrips (`{len(dup_hashes)}` Global Duplicate Hashes)** | {total_analyzed * 2} WebPs | **Desktop `1280×[{min_dh}..{max_dh}]px` (median `{median_dh}px`) · Mobile `390×[{min_mh}..{max_mh}]px` (median `{median_mh}px`)** |
 | **Automated Structural, Visual & Grounding Lint (`C1`–`C15`)** | **{total_perfect} / {total_analyzed} at `25.0 / 25.0`** | >= 23.0 avg | **{overall_avg:.1f} / 25.0 Perfect Pass Rate Verified** |
 | **Master Prompt Unsplit Fence Length** | **{min_fl}–{max_fl} lines (median {median_fl}L)** | >= 80 lines | **Single Unsplit Fenced Block Verified Across All {total_analyzed} Analyzed Targets** |
 | **Execution Audit Traces (`wiki/traces/`)** | **{len(rounds)} / {len(rounds)} Traces** | {len(rounds)} | **[round-01-trace](traces/round-01-trace.md) .. [round-{max(rounds.keys()):02d}-trace](traces/round-{max(rounds.keys()):02d}-trace.md) Logged** |
 | **Anthropic Reviewer (`claude-loop`)** | `claude-sonnet-5-5-high` | `VERDICT: APPROVE` | {reviewer_status} |
 
 > [!NOTE]
-> **Live 3-Tier Capture Methodology (`C14`–`C15`)**: Every analyzed target is captured live via headless Playwright Chromium across both Desktop (`1440×[900..2400]`, `device_scale_factor=1`) and Mobile (`390×[844..2400]`, `is_mobile=True`, `has_touch=True`) using direct CDP `Page.captureScreenshot` clamping, multilingual GDPR consent dismissal, incremental scroll-to-hydrate, and live `computed_styles.json` extraction. **Tier 1** (`--disable-gpu`) runs by default; **Tier 2** (SwiftShader WebGL + rAF pause-on-capture) auto-escalates only on `<canvas>` sites failing visual health; **Tier 3** (`--disable-http2`) auto-escalates only on `ERR_HTTP2_*` transport errors. Zero offline `route.abort()` renders and zero synthetic specimen sheets exist anywhere in the catalog. Targets returning WAF/CAPTCHA/4xx/5xx/browser-support/network errors are recorded honestly as `status: blocked` with zero bypasses and zero stray PNGs.
+> **Live Full-Behavioral Journey Capture Methodology (`behavioral_journey_v2`, `C14`–`C15`)**: Every analyzed target is captured live via headless Playwright Chromium across Desktop (`1440×900` dual-mode native/wheel scroll up to 8 deduplicated keyframes stitched into `1280px`-wide `assets/desktop-journey.webp`), Mobile (`390×844` 3-frame journey stitched into `assets/mobile-journey.webp`), up to 3 internal subpages (`subpage-*.webp`), and safe non-destructive UI probes (`state-nav.webp`, `state-interactive.webp`, hover CSS diffs), all saved as WebP (`q=82`) with zero legacy PNGs. **Tier 1** (`--disable-gpu`) runs by default; **Tier 2** (SwiftShader WebGL + rAF pause-on-capture) auto-escalates on `<canvas>`/preloader sites; **Tier 3** (`--disable-http2`) auto-escalates on `ERR_HTTP2_*` transport errors. Zero offline `route.abort()` renders and zero synthetic specimen sheets exist anywhere in the catalog. Targets returning WAF/CAPTCHA/4xx/5xx/browser-support/network errors are recorded honestly as `status: blocked` with zero bypasses and zero stray visual assets.
 
 ---
 
@@ -263,7 +273,7 @@ def main() -> None:
 
 ## 🎯 Master {len(all_slugs)}-Target UI Prompt Blueprint Scorecard
 
-| # | Round | Target | Live Tier & Design Archetype / Block Status | Desktop PNG | Mobile PNG | Fence | Truth Eval | Blueprint & Tokens |
+| # | Round | Target | Live Tier & Design Archetype / Block Status | Desktop Journey WebP | Mobile Journey WebP | Fence | Truth Eval | Blueprint & Tokens |
 | :-: | :-: | :--- | :--- | :--- | :---: | :---: | :---: | :---: |
 {full_target_table}
 
@@ -271,9 +281,9 @@ def main() -> None:
 
 ## 🧪 5-Point Truth, Visual Health & Grounding Evaluation Rubric (`evaluate_batch.py` — `C1`–`C15`)
 
-1. **Live Visual Assets, Clamped Dimensions & Pixel Health (`C2`, `C11`, `C14` — 5.0 pts)**: Requires `capture: live`, `capture_desktop: live`, `capture_mobile: live`, valid `capture_tier`, `1440×[900..2400]` desktop and `390×[844..2400]` mobile PNGs, PIL/NumPy visual health (rejecting corrupt/solid-blank frames without penalizing minimalist typography pages), and zero synthetic specimens.
-2. **Token Hygiene, Traceable Citations & Live `computed_styles.json` Grounding (`C1`–`C5`, `C14`, `C15` — 5.0 pts)**: Excludes `status: blocked` targets cleanly (verifying zero blocked body corruption and zero stray PNGs), verifies `computed_styles.json` & `metadata.json` existence and canvas substrate polarity match, asserts global PNG SHA256 uniqueness, rejects parser debris, and requires zero Obsidian wikilinks in `overview.md`.
-3. **Structural, Typography & Wireframe Fidelity (`C3`, `C4`, `C6`, `C7`, `C14` — 5.0 pts)**: Verifies all 7 sections exist, rejects boilerplate `clamp(2.25rem, 4.8vw, 4.75rem)` type scales and icon fonts, enforces uniform 74-character width alignment on Section 6 ASCII wireframe boxes, and verifies cited DOM classes against live `dom.html`.
+1. **Live Visual Assets, Behavioral Filmstrips & Pixel Health (`C2`, `C11`, `C14` — 5.0 pts)**: Requires `capture: live`, `capture_desktop: live`, `capture_mobile: live`, `capture_mode: behavioral_journey_v2`, valid `capture_tier`, `1280px`-wide `desktop-journey.webp` and `390px`-wide `mobile-journey.webp` (WebP `q=82`, zero legacy PNGs), PIL/NumPy visual health, and zero synthetic specimens.
+2. **Token Hygiene, Traceable Citations & Live `computed_styles.json` Grounding (`C1`–`C5`, `C14`, `C15` — 5.0 pts)**: Excludes `status: blocked` targets cleanly (verifying zero blocked body corruption and zero stray visual assets), verifies `computed_styles.json` & `metadata.json` existence and canvas substrate polarity match, asserts global asset SHA256 uniqueness, rejects parser debris, and requires zero Obsidian wikilinks in `overview.md`.
+3. **Structural, Typography & Wireframe Fidelity (`C3`, `C4`, `C6`, `C7`, `C14` — 5.0 pts)**: Verifies all 8 sections (`Sections 1–8`, including Full-Page Scroll Journey, Interactive States & Subpage Inventory) exist, rejects boilerplate type scales and icon fonts, enforces uniform 74-character width alignment on Section 6 ASCII wireframe boxes, and verifies cited DOM classes against live `dom.html`.
 4. **Internal Cross-Section Consistency (`C1`, `C4`, `C5`, `C12` — 5.0 pts)**: Asserts that every hex color, CSS variable, and `cubic-bezier()` curve in Section 7's Master Prompt is grounded in Sections 3, 4, and 5 of that same blueprint, with zero double-backtick formatting glitches.
 5. **Master Prompt Generability, Fence Integrity & Uniqueness (`C10`, `C13` — 5.0 pts)**: Enforces a single uninterrupted fenced Section 7 block of `>= 80` lines and verifies pairwise Jaccard line overlap within each round is `<= 0.30`.
 """
