@@ -256,8 +256,8 @@ def verify_catalog(
                     cov_warn = check_behavioral_scroll_coverage(beh_data)
                     if cov_warn:
                         warn_reasons.append(cov_warn)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    warn_reasons.append(f"Corrupt behavior.json ({exc}) (P3)")
         else:
             d_metrics = compute_png_visual_metrics(adir / "desktop.png", top_fold_height=900)
             m_metrics = compute_png_visual_metrics(adir / "mobile.png", top_fold_height=844)
@@ -276,6 +276,10 @@ def verify_catalog(
                     fail_reasons.append(f"Desktop dims out of bounds: {d_metrics['width']}x{d_metrics['height']}")
             if d_metrics["gray_std"] < 8.0 and d_metrics["edge_density"] < 0.003:
                 fail_reasons.append(f"Desktop solid blank (std={d_metrics['gray_std']}, edge={d_metrics['edge_density']})")
+            elif is_v2 and d_metrics["gray_std"] < 18.0 and d_metrics["dominant_q16_pct"] > 92.0:
+                warn_reasons.append(
+                    f"Desktop v2 filmstrip low-entropy (std={d_metrics['gray_std']}, q16={d_metrics['dominant_q16_pct']}%) (P2)"
+                )
             elif not is_v2 and (d_metrics["dominant_q16_pct"] > 85.0 or d_metrics["gray_std"] < 18.0 or d_metrics["top_fold_dominant_q16_pct"] > 92.0):
                 warn_reasons.append(
                     f"Desktop borderline low-entropy (std={d_metrics['gray_std']}, q16={d_metrics['dominant_q16_pct']}%, tf_q16={d_metrics['top_fold_dominant_q16_pct']}%)"

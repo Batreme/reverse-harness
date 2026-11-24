@@ -426,7 +426,7 @@ READ_HOVER_STYLE_JS = """
 INTERACTIVE_CONTROL_FIND_JS = """
 () => {
   try {
-    const FORBIDDEN = /captcha|turnstile|login|sign[- ]?in|submit|checkout|cart|pay|delete|cookie|consent|privacy|menu|nav/i;
+    const FORBIDDEN = /\\b(?:captcha|turnstile|login|sign[- ]?in|submit|checkout|cart|pay|delete|cookie|consent|privacy|menu|nav)\\b/i;
     const isVis = (el) => {
       if (!el) return false;
       const cs = window.getComputedStyle(el);
@@ -1285,6 +1285,7 @@ async def _run_subpage_crawl(
 
         if idx == 1 and route.get("visible") and route.get("cx", 0) > 0 and route.get("cy", 0) > 0:
             # Click first route to measure SPA vs MPA transition
+            pages_before = list(page.context.pages)
             try:
                 await asyncio.wait_for(page.evaluate("() => { window.__SPA_MARKER = 'alive_v2'; }"), timeout=1.5)
                 prev_url = page.url
@@ -1307,6 +1308,14 @@ async def _run_subpage_crawl(
                     transition_type = "SPA" if marker == "alive_v2" else "MPA"
             except Exception:
                 nav_ok = False
+            finally:
+                # P9: close any popup tabs opened by target=_blank links
+                for extra_page in list(page.context.pages):
+                    if extra_page not in pages_before and extra_page is not page:
+                        try:
+                            await asyncio.wait_for(extra_page.close(), timeout=2.0)
+                        except Exception:
+                            pass
 
         if not nav_ok:
             t_nav = time.time()

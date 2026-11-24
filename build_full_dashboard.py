@@ -26,8 +26,10 @@ if str(REVERSE_HARNESS_DIR) not in sys.path:
 from PIL import Image
 
 from evaluate_batch import (
+    RAW_DIR,
     TARGETS as ROUND_1_SLUGS,
     TARGETS_DIR,
+    check_behavioral_scroll_coverage,
     evaluate_blocked_target,
     evaluate_target,
     find_duplicate_png_hashes,
@@ -99,6 +101,15 @@ def main() -> None:
 
     all_active_slugs = [s for s in all_slugs if not is_blocked_target(s)]
     dup_hashes = find_duplicate_png_hashes(all_active_slugs)
+    shallow_coverage_slugs = []
+    for s in all_active_slugs:
+        bp_j = RAW_DIR / s / "behavior.json"
+        if bp_j.exists():
+            try:
+                if check_behavioral_scroll_coverage(json.loads(bp_j.read_text(encoding="utf-8", errors="ignore"))):
+                    shallow_coverage_slugs.append(s)
+            except Exception:
+                pass
 
     round_summary_rows = []
     target_rows = []
@@ -253,13 +264,13 @@ def main() -> None:
 | **Non-Analyzed Breakdown (`status: blocked`)** | **`{total_site_blocked}` Site-Blocked / Dead · `{total_capture_incomplete}` Capture-Incomplete (`{total_blocked}` Total)** | Transparent Split (`R8`) | **Site-Blocked: HTTP 4xx/5xx, WAF/Cloudflare/Akamai/CloudFront, DNS/empty/placeholder · Capture-Incomplete: Headless Preloader/Blank Viewport, WebGPU/Browser Gate, Behavioral Capture Failure / Deadline Timeout** |
 | **Live Capture Provenance Breakdown** | **`{total_live_captures}` Live (`capture: live`) · `{total_specimen_captures}` Synthetic Specimens · `{total_blocked}` Non-Analyzed** | 0 Specimens | **`tier1_fast`: `{tier_counts['tier1_fast']}` · `tier2_webgl`: `{tier_counts['tier2_webgl']}` · `tier3_http1`: `{tier_counts['tier3_http1']}`** |
 | **Visual Assets (`desktop-journey.webp` + `mobile-journey.webp`)** | **{total_existing_pngs} Live Verified WebP Filmstrips (`{len(dup_hashes)}` Global Duplicate Hashes)** | {total_analyzed * 2} WebPs | **Desktop `1280×[{min_dh}..{max_dh}]px` (median `{median_dh}px`) · Mobile `390×[{min_mh}..{max_mh}]px` (median `{median_mh}px`)** |
-| **Automated Structural, Visual & Grounding Lint (`C1`–`C15`)** | **{total_perfect} / {total_analyzed} at `25.0 / 25.0`** | >= 23.0 avg | **{overall_avg:.1f} / 25.0 Perfect Pass Rate Verified** |
+| **Automated Structural, Visual & Grounding Lint (`C1`–`C15`)** | **{total_perfect} / {total_analyzed} at `25.0 / 25.0`** | >= 23.0 avg | **{overall_avg:.1f} / 25.0 Perfect Pass Rate Verified (`{len(shallow_coverage_slugs)}` shallow scroll-coverage `[WARN]` on scroll-locked/canvas sites)** |
 | **Master Prompt Unsplit Fence Length** | **{min_fl}–{max_fl} lines (median {median_fl}L)** | >= 80 lines | **Single Unsplit Fenced Block Verified Across All {total_analyzed} Analyzed Targets** |
 | **Execution Audit Traces (`wiki/traces/`)** | **{len(rounds)} / {len(rounds)} Traces** | {len(rounds)} | **[round-01-trace](traces/round-01-trace.md) .. [round-{max(rounds.keys()):02d}-trace](traces/round-{max(rounds.keys()):02d}-trace.md) Logged** |
 | **Anthropic Reviewer (`claude-loop`)** | `claude-sonnet-5-5-high` | `VERDICT: APPROVE` | {reviewer_status} |
 
 > [!NOTE]
-> **Live Full-Behavioral Journey Capture Methodology (`behavioral_journey_v2`, `C14`–`C15`)**: Every analyzed target is captured live via headless Playwright Chromium across Desktop (`1440×900` dual-mode native/wheel scroll up to 8 deduplicated keyframes stitched into `1280px`-wide `assets/desktop-journey.webp`), Mobile (`390×844` 3-frame journey stitched into `assets/mobile-journey.webp`), up to 3 internal subpages (`subpage-*.webp`), and safe non-destructive UI probes (`state-nav.webp`, `state-interactive.webp`, hover CSS diffs), all saved as WebP (`q=82`) with zero legacy PNGs. **Tier 1** (`--disable-gpu`) runs by default; **Tier 2** (SwiftShader WebGL + rAF pause-on-capture) auto-escalates on `<canvas>`/preloader sites; **Tier 3** (`--disable-http2`) auto-escalates on `ERR_HTTP2_*` transport errors. Zero offline `route.abort()` renders and zero synthetic specimen sheets exist anywhere in the catalog. Targets returning WAF/CAPTCHA/4xx/5xx/browser-support/network errors are recorded honestly as `status: blocked` with zero bypasses and zero stray visual assets.
+> **Live Full-Behavioral Journey Capture Methodology (`behavioral_journey_v2`, `C14`–`C15`)**: Every analyzed target is captured live via headless Playwright Chromium across Desktop (`1440×900` dual-mode native/wheel scroll up to 8 deduplicated keyframes stitched into `1280px`-wide `assets/desktop-journey.webp`), Mobile (`390×844` 3-frame journey stitched into `assets/mobile-journey.webp`), up to 3 internal subpages (`subpage-*.webp`), and safe non-destructive UI probes (`state-nav.webp`, `state-interactive.webp`, hover CSS diffs), all saved as WebP (`q=82`) with zero legacy PNGs. **Visual Health & Known Limitations (`P2`/`P5`)**: Filmstrips enforce solid-blank rejection (`gray_std < 8.0 & edge_density < 0.003`), v2 low-entropy warnings (`gray_std < 18.0 & dominant_q16 > 92%`), and vertical scroll-coverage warnings (`check_behavioral_scroll_coverage`, currently surfacing `{len(shallow_coverage_slugs)}` scroll-locked/canvas-pinned targets as `[WARN]` in `verify_visual_catalog.py`); legacy single-page blank-tail/mid-void heuristics are intentionally skipped on v2 filmstrips because 28px dark divider bars separate frames. **Tier 1** (`--disable-gpu`) runs by default; **Tier 2** (SwiftShader WebGL + rAF pause-on-capture) auto-escalates on `<canvas>`/preloader sites; **Tier 3** (`--disable-http2`) auto-escalates on `ERR_HTTP2_*` transport errors. Zero offline `route.abort()` renders and zero synthetic specimen sheets exist anywhere in the catalog. Targets returning WAF/CAPTCHA/4xx/5xx/browser-support/network errors are recorded honestly as `status: blocked` with zero bypasses and zero stray visual assets.
 
 ---
 

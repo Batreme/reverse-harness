@@ -250,6 +250,10 @@ def evaluate_target(
                 issues.append(f"Desktop WebP journey is solid/blank (std={d_metrics['gray_std']}, edge={d_metrics['edge_density']}) (C14)")
             else:
                 asset_score += 2.0
+                if d_metrics["dominant_q16_pct"] > 95.0 and d_metrics["edge_density"] < 0.005:
+                    warnings.append(
+                        f"Desktop WebP journey low-entropy/minimal (q16={d_metrics['dominant_q16_pct']}%, edge={d_metrics['edge_density']}) — visual review (P2)"
+                    )
         else:
             issues.append(f"Desktop WebP journey must be valid 1280x[828..16382], got {d_w}x{d_h} ({d_sz}B) (C14)")
 
@@ -258,6 +262,10 @@ def evaluate_target(
                 issues.append(f"Mobile WebP journey is solid/blank (std={m_metrics['gray_std']}, edge={m_metrics['edge_density']}) (C14)")
             else:
                 asset_score += 2.0
+                if m_metrics["dominant_q16_pct"] > 95.0 and m_metrics["edge_density"] < 0.005:
+                    warnings.append(
+                        f"Mobile WebP journey low-entropy/minimal (q16={m_metrics['dominant_q16_pct']}%, edge={m_metrics['edge_density']}) — visual review (P2)"
+                    )
         else:
             issues.append(f"Mobile WebP journey must be valid 390x[872..16382], got {m_w}x{m_h} ({m_sz}B) (C14)")
 
@@ -270,7 +278,7 @@ def evaluate_target(
             asset_score -= 0.5
             issues.append("Missing 'asset_format: webp' in behavioral_journey_v2 frontmatter")
 
-        # C2: Verify vertical scroll journey coverage against raw/<slug>/behavior.json
+        # C2 / P3: Verify vertical scroll journey coverage against raw/<slug>/behavior.json
         beh_path = RAW_DIR / target_name / "behavior.json"
         if beh_path.exists():
             try:
@@ -278,8 +286,8 @@ def evaluate_target(
                 cov_warn = check_behavioral_scroll_coverage(beh_data)
                 if cov_warn:
                     warnings.append(cov_warn)
-            except Exception:
-                pass
+            except Exception as exc:
+                warnings.append(f"Corrupt behavior.json ({exc}) — skipped C2 scroll coverage check (P3)")
     else:
         if d_metrics.get("valid") and d_w == 1440 and 900 <= d_h <= 2400:
             if d_metrics["gray_std"] < 8.0 and d_metrics["edge_density"] < 0.003:
