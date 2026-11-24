@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
+from PIL import Image
 from playwright.async_api import async_playwright
 
 REVERSE_HARNESS_DIR = pathlib.Path(__file__).resolve().parent
@@ -39,6 +40,7 @@ if str(SRC_DIR) not in sys.path:
 if str(REVERSE_HARNESS_DIR) not in sys.path:
     sys.path.insert(0, str(REVERSE_HARNESS_DIR))
 
+from reverse_harness.behavioral_capture import capture_target_behavioral
 from reverse_harness.live_capture import (
     BrowserPool,
     atomic_write_text,
@@ -133,7 +135,39 @@ def get_png_dimensions(path: pathlib.Path) -> Tuple[int, int, int]:
         if len(data) >= 24 and data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR":
             w, h = struct.unpack(">II", data[16:24])
             return (w, h, size)
-    return (0, 0, size)
+    try:
+        with Image.open(path) as im:
+            return (int(im.width), int(im.height), size)
+    except Exception:
+        return (0, 0, size)
+
+
+def load_behavior_bundle(slug: str) -> Optional[dict]:
+    bpath = RAW_DIR / slug / "behavior.json"
+    if bpath.exists():
+        try:
+            data = json.loads(bpath.read_text(encoding="utf-8", errors="ignore"))
+            if isinstance(data, dict) and data.get("capture_mode") == "behavioral_journey_v2":
+                return data
+        except Exception:
+            pass
+    return None
+
+
+def is_behavioral_v2_complete(slug: str) -> bool:
+    """Return True if slug already has behavioral_journey_v2 frontmatter + valid desktop/mobile WebP filmstrips."""
+    tdir = TARGETS_DIR / slug
+    bp = tdir / "prompt-blueprint.md"
+    dj = tdir / "assets" / "desktop-journey.webp"
+    mj = tdir / "assets" / "mobile-journey.webp"
+    if not (bp.exists() and dj.exists() and mj.exists()):
+        return False
+    head = bp.read_text(encoding="utf-8", errors="ignore")[:800]
+    if "capture_mode: behavioral_journey_v2" not in head:
+        return False
+    dw, dh, dsz = get_png_dimensions(dj)
+    mw, mh, msz = get_png_dimensions(mj)
+    return dw == 1280 and dh >= 828 and dsz > 1000 and mw == 390 and mh >= 872 and msz > 500
 
 
 def normalize_hex(h: str) -> str:
@@ -413,17 +447,17 @@ auth_required: false
 
 
 def write_blocked_target(slug: str, reason: str, meta: dict) -> None:
-    """Write clean blocked dossier files with capture: none ONLY in YAML frontmatter and remove stale PNGs."""
+    """Write clean blocked dossier files with capture: none ONLY in YAML frontmatter and remove stale assets."""
     target_dir = TARGETS_DIR / slug
     target_dir.mkdir(parents=True, exist_ok=True)
     assets_dir = target_dir / "assets"
-    for stale in ("desktop.png", "mobile.png"):
-        sp = assets_dir / stale
-        if sp.exists():
-            try:
-                sp.unlink()
-            except OSError:
-                pass
+    if assets_dir.exists():
+        for sp in list(assets_dir.iterdir()):
+            if sp.is_file() and sp.suffix.lower() in (".png", ".webp"):
+                try:
+                    sp.unlink()
+                except OSError:
+                    pass
 
     today = today_iso()
     url = meta.get("url") or f"https://{slug.replace('-', '.')}"
@@ -1728,9 +1762,19 @@ def extract_ground_truth(
     else:
         archetype = f"Light-Substrate Editorial & Modular Grid System (`{bg_hex}` canvas, `{ink_hex}` ink, `{accent_hex}` accent)"
 
+    if display_font == body_font:
+        typo_diff = (
+            f"**Grounded Typographic Hierarchy**: Uses {display_font} across display (`{h1_copy[:36]}`) and body copy"
+            + (f", paired with {mono_font} for monospace/code." if mono_name else ".")
+        )
+    else:
+        typo_diff = (
+            f"**Grounded Typographic Hierarchy**: Pairs {display_font} for display copy (`{h1_copy[:36]}`) with {body_font}"
+            + (f" and {mono_font}." if mono_name else ".")
+        )
     differentiators = [
         f"**Live-Computed Chromatic Polarity**: Anchors the viewport in `{bg_hex}` ({bg_src}) paired with `{ink_hex}` primary typography and `{accent_hex}` accents.",
-        f"**Grounded Typographic Hierarchy**: Pairs {display_font} for display copy (`{h1_copy[:36]}`) with {body_font} and {mono_font}.",
+        typo_diff,
         f"**Calibrated Spatial Grid & Motion**: Combines `{container_max}` container bounds (`gap: {grid_gap}`, padding `{grid_pad}`) with `{beziers[0]}` easing" + (f" and {', '.join(detected_libs[:2])}." if detected_libs else "."),
     ]
 
@@ -1808,9 +1852,194 @@ def make_ascii_box(lines: List[str], width: int = 74) -> str:
 def _describe_capture_height(h: int, min_h: int) -> str:
     if h <= min_h:
         return f"single-viewport 100vh live capture ({min_h}px)"
-    if h >= 2400:
+    if h > 2400:
+        return f"multi-frame vertical journey filmstrip ({h}px)"
+    if h == 2400:
         return "clamped at 2400px live multi-section capture"
     return f"full-page live capture ({h}px)"
+
+
+def build_behavioral_sections(behavior: dict) -> Tuple[str, str, str, str]:
+    """
+    Build behavioral telemetry enrichments for Sections 5, 6, 7 and full Section 8 Markdown
+    from raw/<slug>/behavior.json.
+    """
+    scroll_driver = behavior.get("scroll_driver", "native")
+    scroll_libs = behavior.get("scroll_libs") or []
+    max_scroll_h = behavior.get("max_scroll_height", 900)
+    max_scroll_y = behavior.get("max_scroll_y_reached", 0)
+    desk_kfs = behavior.get("desktop_keyframes") or []
+    mob_kfs = behavior.get("mobile_keyframes") or []
+    probes = behavior.get("ui_probes") or {}
+    subpages = behavior.get("subpages") or []
+
+    # Section 5 enrichment
+    s5_lines = [
+        "\n### Measured Runtime Scroll & Interaction Telemetry (`behavioral_journey_v2`)",
+        f"- **Scroll Driver Mode**: `{scroll_driver}` (max document height `{max_scroll_h}px`, deepest scrollY reached `{max_scroll_y}px` across `{len(desk_kfs)}` desktop keyframes).",
+        f"- **Detected Scroll / Motion Libraries**: {', '.join(f'`{lib}`' for lib in scroll_libs) if scroll_libs else 'Native browser scroll / standard CSS transitions'}.",
+    ]
+    nav_p = probes.get("nav_probe") or {}
+    if nav_p.get("tested"):
+        if nav_p.get("triggered"):
+            links_preview = ", ".join(clean_text(l.get("text", ""), 24) for l in (nav_p.get("opened_links") or [])[:6])
+            s5_lines.append(
+                f"- **Nav / Drawer Probe (`{clean_text(nav_p.get('label', 'menu'), 30)}`)**: Triggered visual change (pixel diff `{nav_p.get('diff', 0)}`, captured in `assets/state-nav.webp`)"
+                + (f"; revealed links: {links_preview}." if links_preview else ".")
+            )
+        else:
+            s5_lines.append(f"- **Nav / Drawer Probe**: Tested trigger `{clean_text(nav_p.get('label', 'menu'), 30)}` (diff `{nav_p.get('diff', 0)}`, below state-capture threshold).")
+
+    for hp in (probes.get("hover_probes") or [])[:2]:
+        role = hp.get("role", "element")
+        lbl = clean_text(hp.get("label", hp.get("tag", "")), 36)
+        tdur = hp.get("transitionDuration") or "0s"
+        tfunc = hp.get("transitionTimingFunction") or "ease"
+        if hp.get("changed") and hp.get("diffs"):
+            diff_parts = [f"`{k}`: `{clean_text(str(v.get('from', '')), 26)}` -> `{clean_text(str(v.get('to', '')), 26)}`" for k, v in list(hp["diffs"].items())[:4]]
+            s5_lines.append(f"- **Hover Physics (`{role}` · `{lbl}`)**: {'; '.join(diff_parts)} (`transition-duration: {tdur}`, `timing: {tfunc}`).")
+        else:
+            s5_lines.append(f"- **Hover Physics (`{role}` · `{lbl}`)**: Computed transition `{tdur}` / `{tfunc}` (no static color/transform shift captured at rest).")
+
+    inter_p = probes.get("interactive_probe") or {}
+    if inter_p.get("tested"):
+        if inter_p.get("triggered"):
+            s5_lines.append(
+                f"- **Interactive Control Probe (`{inter_p.get('kind', 'control')}` · `{clean_text(inter_p.get('label', ''), 36)}`)**: "
+                f"Triggered visual diff `{inter_p.get('diff', 0)}` (attr `{inter_p.get('attr_change', '')}`, captured in `assets/state-interactive.webp`)."
+            )
+        else:
+            s5_lines.append(f"- **Interactive Control Probe (`{inter_p.get('kind', 'control')}`)**: Tested `{clean_text(inter_p.get('label', ''), 36)}` (diff `{inter_p.get('diff', 0)}`).")
+
+    theme_p = probes.get("theme_probe") or {}
+    if theme_p.get("tested"):
+        if theme_p.get("changed"):
+            s5_lines.append(
+                f"- **Theme Toggle Probe (`{clean_text(theme_p.get('label', 'theme'), 30)}`)**: Toggled body background `{theme_p.get('beforeBg')}` -> `{theme_p.get('afterBg')}` and ink `{theme_p.get('beforeColor')}` -> `{theme_p.get('afterColor')}`."
+            )
+        else:
+            s5_lines.append(f"- **Theme Toggle Probe**: Detected `{clean_text(theme_p.get('label', 'theme'), 30)}` (no body background diff).")
+
+    def _sp_path(sp: dict) -> str:
+        from urllib.parse import urlparse
+        raw_u = sp.get("url") or sp.get("final_url") or ""
+        p = urlparse(raw_u).path if raw_u else ""
+        return p if p and p.startswith("/") else f"/{sp.get('route_slug', 'page')}"
+
+    if subpages:
+        first_sub = subpages[0]
+        s5_lines.append(
+            f"- **Route Transition Architecture**: First internal navigation (`{_sp_path(first_sub)}`) measured as `{first_sub.get('transition_type', 'direct')}` in `{first_sub.get('transition_ms', 0)}ms`."
+        )
+    sec5_extra = "\n".join(s5_lines)
+
+    # Section 6 enrichment
+    s6_lines = ["\n### Full Vertical Scroll Sequence (Desktop `1440×900` Keyframes)"]
+    for kf in desk_kfs:
+        s6_lines.append(
+            f"- **Step {kf['step']:02d}** (`y={kf['scrollY']}px`, `{kf['scrollPct']}%`): "
+            f"Active landmark `{clean_text(str(kf.get('activeLandmark', 'Section')), 52)}` · "
+            f"sticky/fixed elements: `{kf.get('stickyFixedCount', 0)}`"
+        )
+    if subpages:
+        s6_lines.append("\n### Multi-Page Internal Route Map")
+        for sp in subpages:
+            s6_lines.append(
+                f"- **{sp['category'].title()} Route (`{_sp_path(sp)}`)**: `{sp['url']}` — "
+                f"H1: `{clean_text(sp.get('h1') or sp.get('title') or sp['route_slug'], 52)}`, "
+                f"scrollHeight `{sp.get('scroll_height', 900)}px`, transition `{sp.get('transition_type', 'direct')}` (`{sp.get('transition_ms', 0)}ms`)"
+            )
+    sec6_extra = "\n".join(s6_lines)
+
+    # Section 7 enrichment (inside fenced master prompt)
+    s7_lines = [
+        "\n### 7b. Full-Page Scroll Choreography, Interactive States & Multi-Page Routes",
+        f"- **Scroll Mechanics**: Implement `{scroll_driver}` vertical progression up to `{max_scroll_h}px` across {len(desk_kfs)} distinct viewport chapters"
+        + (f" using {', '.join(scroll_libs)}." if scroll_libs else "."),
+    ]
+    if desk_kfs:
+        chapter_seq = " -> ".join(f"{clean_text(str(kf.get('activeLandmark', 'Section')), 30)} ({kf['scrollPct']}%)" for kf in desk_kfs[:8])
+        s7_lines.append(f"- **Vertical Chapter Sequence**: {chapter_seq}.")
+    if nav_p.get("triggered"):
+        s7_lines.append(f"- **Navigation Drawer / Menu State**: Replicate interactive menu toggle (`{clean_text(nav_p.get('label', 'menu'), 30)}`) with Escape-to-close keyboard handling.")
+    for hp in (probes.get("hover_probes") or [])[:2]:
+        if hp.get("changed") and hp.get("diffs"):
+            props = ", ".join(hp["diffs"].keys())
+            s7_lines.append(f"- **Hover Micro-Interaction (`{hp.get('role')}`)**: Animate `{props}` with `{hp.get('transitionDuration', '0.25s')} {hp.get('transitionTimingFunction', 'ease')}`.")
+    if subpages:
+        route_list = ", ".join(f"`{_sp_path(sp)}` ({sp['category']}, {sp.get('transition_type', 'direct')})" for sp in subpages)
+        s7_lines.append(f"- **Multi-Page Routes**: Scaffold internal routes {route_list} sharing the global header/footer shell and design tokens.")
+    sec7_extra = "\n".join(s7_lines)
+
+    # Section 8 full inventory with clean relative Markdown links
+    s8_lines = [
+        "\n---\n",
+        "## 8. Full-Page Scroll Journey, Interactive States & Subpage Inventory",
+        "",
+        "### Desktop Scroll Keyframes (`1440×900` WebP)",
+        "| Step | Scroll Y | Progress | Active Landmark / Section | Sticky/Fixed | Visual Asset |",
+        "| :---: | :---: | :---: | :--- | :---: | :--- |",
+    ]
+    for kf in desk_kfs:
+        frel = kf["file"]
+        s8_lines.append(
+            f"| `#{kf['step']:02d}` | `{kf['scrollY']}px` | `{kf['scrollPct']}%` | "
+            f"{clean_text(str(kf.get('activeLandmark', 'Section')), 48)} | `{kf.get('stickyFixedCount', 0)}` | "
+            f"[desktop-step-{kf['step']:02d}.webp]({frel}) |"
+        )
+
+    if mob_kfs:
+        s8_lines.extend([
+            "",
+            "### Mobile Condensed Keyframes (`390×844` WebP)",
+            "| Step | Scroll Y | Progress | Active Landmark | Visual Asset |",
+            "| :---: | :---: | :---: | :--- | :--- |",
+        ])
+        for mkf in mob_kfs:
+            mfrel = mkf["file"]
+            s8_lines.append(
+                f"| `#{mkf['step']:02d}` | `{mkf['scrollY']}px` | `{mkf['scrollPct']}%` | "
+                f"{clean_text(str(mkf.get('activeLandmark', 'Viewport')), 44)} | "
+                f"[mobile-step-{mkf['step']:02d}.webp]({mfrel}) |"
+            )
+
+    state_files = probes.get("state_files") or []
+    if state_files:
+        s8_lines.extend([
+            "",
+            "### Interactive UI State Captures (`1440×900` WebP)",
+            "| State Type | Trigger / Observation | Visual Asset |",
+            "| :--- | :--- | :--- |",
+        ])
+        for sf in state_files:
+            sf_rel = sf["file"]
+            sf_name = pathlib.Path(sf_rel).name
+            desc = (
+                f"Nav/Menu opened (`{clean_text(nav_p.get('label', 'menu'), 32)}`, diff `{nav_p.get('diff', 0)}`)"
+                if sf["kind"] == "nav_menu"
+                else f"Control `{inter_p.get('kind', 'interactive')}` (`{clean_text(inter_p.get('label', ''), 32)}`, diff `{inter_p.get('diff', 0)}`)"
+            )
+            s8_lines.append(f"| `{sf['kind']}` | {desc} | [{sf_name}]({sf_rel}) |")
+
+    if subpages:
+        s8_lines.extend([
+            "",
+            "### Internal Subpage Filmstrips (`1080px` Wide WebP)",
+            "| # | Template | Route URL | H1 / Title | Scroll Height | Transition | Filmstrip Asset |",
+            "| :-: | :---: | :--- | :--- | :---: | :---: | :--- |",
+        ])
+        for sp in subpages:
+            af = sp["asset_file"]
+            af_name = pathlib.Path(af).name
+            s8_lines.append(
+                f"| `{sp['index']}` | `{sp['category']}` | `{sp['url']}` | "
+                f"{clean_text(sp.get('h1') or sp.get('title') or sp['route_slug'], 40)} | "
+                f"`{sp.get('scroll_height', 900)}px` | `{sp.get('transition_type', 'direct')}` (`{sp.get('transition_ms', 0)}ms`) | "
+                f"[{af_name}]({af}) |"
+            )
+
+    sec8_md = "\n".join(s8_lines) + "\n"
+    return sec5_extra, sec6_extra, sec7_extra, sec8_md
 
 
 def write_ui_ux_and_blueprint(
@@ -1819,6 +2048,7 @@ def write_ui_ux_and_blueprint(
     meta: dict,
     d_dims: Tuple[int, int, int],
     m_dims: Tuple[int, int, int],
+    behavior: Optional[dict] = None,
 ) -> Tuple[int, int]:
     today = today_iso()
     d_w, d_h, _ = d_dims
@@ -1987,6 +2217,41 @@ http_status: {http_status}
     sec7_meta_spec = fix_double_backticks(sec7_meta_spec)
 
     safe_archetype = yaml_escape(info["archetype"])
+    is_v2 = bool(behavior and behavior.get("capture_mode") == "behavioral_journey_v2")
+    if is_v2:
+        assert behavior is not None
+        sec5_extra, sec6_extra, sec7_extra, sec8_md = build_behavioral_sections(behavior)
+        sec7_extra = fix_double_backticks(sanitize_sec7_hexes(sec7_extra))
+        v2_fm = (
+            f"capture_mode: behavioral_journey_v2\n"
+            f"asset_format: webp\n"
+            f"scroll_driver: {behavior.get('scroll_driver', 'native')}\n"
+            f"desktop_keyframes: {len(behavior.get('desktop_keyframes') or [])}\n"
+            f"subpages_crawled: {len(behavior.get('subpages') or [])}\n"
+        )
+        top_visual_block = (
+            f"![Desktop Journey Filmstrip ({d_w}x{d_h})](assets/desktop-journey.webp)\n\n"
+            f"![Mobile Journey Filmstrip ({m_w}x{m_h})](assets/mobile-journey.webp)"
+        )
+        sec2_mobile_embed = ""
+        sec2_dims_line = (
+            f"- **Captured Journey Filmstrips**: Desktop `{d_w}×{d_h}px` (`assets/desktop-journey.webp`, "
+            f"`{len(behavior.get('desktop_keyframes') or [])}` keyframes up to `y={behavior.get('max_scroll_y_reached', 0)}px` / doc `{behavior.get('max_scroll_height', 900)}px`), "
+            f"Mobile `{m_w}×{m_h}px` (`assets/mobile-journey.webp`, `{len(behavior.get('mobile_keyframes') or [])}` keyframes)."
+        )
+    else:
+        v2_fm = ""
+        sec5_extra = ""
+        sec6_extra = ""
+        sec7_extra = ""
+        sec8_md = ""
+        top_visual_block = f"![Desktop Viewport Capture ({d_w}x{d_h})](assets/desktop.png)"
+        sec2_mobile_embed = f"![Mobile Viewport Capture ({m_w}x{m_h})](assets/mobile.png)\n\n"
+        sec2_dims_line = (
+            f"- **Captured Viewport Dimensions**: Desktop `{d_w}×{d_h}px` (`assets/desktop.png`, {d_cap_note}), "
+            f"Mobile `{m_w}×{m_h}px` (`assets/mobile.png`, {m_cap_note})."
+        )
+
     bp_md = f"""---
 title: "UI Prompt Blueprint: {slug}"
 date: {today}
@@ -1997,7 +2262,7 @@ capture: live
 capture_desktop: live
 capture_mobile: live
 capture_tier: {capture_tier}
-http_status: {http_status}
+{v2_fm}http_status: {http_status}
 archetype: "{safe_archetype}"
 ---
 
@@ -2005,7 +2270,7 @@ archetype: "{safe_archetype}"
 
 > **{info['title']}** ({info['url']}) — {info['summary']}
 
-![Desktop Viewport Capture ({d_w}x{d_h})](assets/desktop.png)
+{top_visual_block}
 
 ---
 
@@ -2021,10 +2286,8 @@ archetype: "{safe_archetype}"
 
 ## 2. Spatial Architecture & Modular Grid Mathematics
 
-![Mobile Viewport Capture ({m_w}x{m_h})](assets/mobile.png)
-
-### Viewport Allocation & Container Geometry
-- **Captured Viewport Dimensions**: Desktop `{d_w}×{d_h}px` (`assets/desktop.png`, {d_cap_note}), Mobile `{m_w}×{m_h}px` (`assets/mobile.png`, {m_cap_note}).
+{sec2_mobile_embed}### Viewport Allocation & Container Geometry
+{sec2_dims_line}
 - **Master Container Bounds**: {info['grid']['max_width']}.
 - **Canvas Lateral Padding & Spacing**: {info['grid']['padding']}.
 - **Border Radius Scale**: {info['grid']['radii']}.
@@ -2071,7 +2334,7 @@ archetype: "{safe_archetype}"
 - **Extracted Timing Functions**: {info['motion']['primary_curve']}.
 
 ### Per-Element Transition & Choreography Rules
-{motion_rules_md}
+{motion_rules_md}{sec5_extra}
 
 ---
 
@@ -2088,7 +2351,7 @@ archetype: "{safe_archetype}"
 ```
 
 ### Granular DOM Region Breakdown
-{regions_md}
+{regions_md}{sec6_extra}
 
 ---
 
@@ -2148,12 +2411,12 @@ Scaffold `{slug}` (`{info['title']}`) with these exact structural regions, extra
 - **Extracted Stylesheet Rules (`{slug}`)**:
 {sec7_css_rules}
 - **Per-Selector Transition Rules**:
-{sec7_motion}
+{sec7_motion}{sec7_extra}
 
 ### 8. Technical Deliverables
 - Implement in Next.js (App Router) with TypeScript and Tailwind CSS consuming the `:root` custom properties defined above for `{slug}`.
 - Reproduce both the `1440px` desktop architecture and `390px` mobile breakpoint transitions, preserving semantic HTML5 landmarks (`<header>`, `<nav>`, `<main>`, `<section>`, `<footer>`) and `prefers-reduced-motion` accessibility guards.
-```
+```{sec8_md}
 """
     atomic_write_text(TARGETS_DIR / slug / "prompt-blueprint.md", bp_md)
     m = re.search(r"## 7\..*?\n```[a-zA-Z]*\n(.*?)\n```", bp_md, flags=re.S)
@@ -2221,11 +2484,11 @@ def write_round_trace(
         + (f"*Blocked (`{yaml_escape(blocked_map[slug])}`)*" if slug in blocked_map else f"*{info_title_map.get(slug, slug)}*")
         for i, slug in enumerate(batch_slugs)
     )
-    trace_md = f"""# Round {rnum:02d} Execution Trace: Live Recrawl & UI Prompt Blueprint Verification
+    trace_md = f"""# Round {rnum:02d} Execution Trace: Full Behavioral Journey Crawl (`behavioral_journey_v2`) & WebP Verification
 
 > [!NOTE]
 > **Audit Trace ID**: `TRACE-{today}-ROUND-{rnum:02d}`  
-> **Active Branch**: `fix/live-recrawl-575-targets`  
+> **Active Branch**: `feat/full-behavioral-journey-webp`  
 > **Analyzed Targets**: `{len(round_metrics)}` live (`{len(blocked_in_round)}` marked `status: blocked` and excluded from tally per `C1`)  
 > **Deterministic Evaluation (`C1`–`C15`)**: **`{avg_score:.1f} / 25.0`**
 
@@ -2236,9 +2499,9 @@ def write_round_trace(
 
 ---
 
-## 2. Live Capture & Ground-Truth Extraction Metrics (Verified PNG IHDR, Computed Styles & DOM/CSS)
+## 2. Live Capture & Ground-Truth Extraction Metrics (Verified WebP Filmstrips, Behavioral Telemetry, Computed Styles & DOM/CSS)
 
-| Target Slug | Capture Tier | Desktop PNG (`assets/desktop.png`) | Mobile PNG (`assets/mobile.png`) | Raw CSS Vars | Curated Root Vars | Blueprint Lines | Unsplit Fence Lines | Max Jaccard (Line / Word) | Truth Eval Score |
+| Target Slug | Capture Tier | Desktop Journey (`assets/desktop-journey.webp`) | Mobile Journey (`assets/mobile-journey.webp`) | Raw CSS Vars | Curated Root Vars | Blueprint Lines | Unsplit Fence Lines | Max Jaccard (Line / Word) | Truth Eval Score |
 | :--- | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 {trace_table}
 """
@@ -2253,28 +2516,56 @@ async def run_pipeline(args: argparse.Namespace) -> None:
     if manifest_path is not None and manifest_path.exists():
         manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
 
-    rounds, manifest_map = build_round_map(manifest_data)
+    # Auto-enable behavioral mode if --behavioral is passed OR manifest has run_targets
+    use_behavioral = bool(args.behavioral or (manifest_data and "run_targets" in manifest_data))
+    do_live = bool(args.live_recrawl or args.behavioral)
 
-    # Determine scope: --slugs vs --shard vs --start-round/--end-round
+    rounds, manifest_map = build_round_map(manifest_data)
+    if manifest_data and manifest_data.get("run_targets"):
+        for entry in manifest_data["run_targets"]:
+            manifest_map[entry["slug"]] = entry
+
+    # Determine scope: --targets/--slugs vs --shard (<k>/<n> or int) vs --start-round/--end-round
     explicit_slugs: Optional[List[str]] = None
     target_rounds: List[int] = []
     checkpoint_name = "manual.json"
 
-    if args.slugs:
-        explicit_slugs = [s.strip() for s in args.slugs.split(",") if s.strip()]
+    raw_slugs_arg = args.targets or args.slugs
+    if raw_slugs_arg:
+        explicit_slugs = [s.strip() for s in raw_slugs_arg.split(",") if s.strip()]
         checkpoint_name = f"slugs_{len(explicit_slugs)}.json"
     elif args.shard is not None:
-        if manifest_data and manifest_data.get("shards"):
-            shard_obj = next((s for s in manifest_data["shards"] if int(s["shard_id"]) == args.shard), None)
-            if not shard_obj:
-                raise SystemExit(f"Shard {args.shard} not found in manifest")
-            r_start, r_end = shard_obj["rounds"]
-            target_rounds = list(range(int(r_start), int(r_end) + 1))
+        shard_str = str(args.shard).strip()
+        if "/" in shard_str:
+            parts = shard_str.split("/")
+            if len(parts) != 2 or not parts[0].isdigit() or not parts[1].isdigit():
+                raise SystemExit(f"Invalid --shard format '{shard_str}', expected <k>/<n> (1-indexed)")
+            k_idx, n_total = int(parts[0]), int(parts[1])
+            if not (1 <= k_idx <= n_total):
+                raise SystemExit(f"Shard index {k_idx} out of range 1..{n_total}")
+            if manifest_data and manifest_data.get("run_targets"):
+                all_list = [e["slug"] for e in manifest_data["run_targets"]]
+            else:
+                all_list = sorted([p.name for p in TARGETS_DIR.iterdir() if p.is_dir()])
+            # Deterministic interleaved sharding so slow/fast sites are evenly balanced
+            explicit_slugs = [slug for i, slug in enumerate(all_list) if (i % n_total) == (k_idx - 1)]
+            checkpoint_name = f"behavioral_shard_{k_idx}_of_{n_total}.json"
         else:
-            all_r = sorted(rounds.keys())
-            per = (len(all_r) + 5) // 6
-            target_rounds = all_r[(args.shard - 1) * per : args.shard * per]
-        checkpoint_name = f"shard_{args.shard}.json"
+            shard_int = int(shard_str)
+            if manifest_data and manifest_data.get("shards"):
+                shard_obj = next((s for s in manifest_data["shards"] if int(s["shard_id"]) == shard_int), None)
+                if not shard_obj:
+                    raise SystemExit(f"Shard {shard_int} not found in manifest")
+                r_start, r_end = shard_obj["rounds"]
+                target_rounds = list(range(int(r_start), int(r_end) + 1))
+            else:
+                all_r = sorted(rounds.keys())
+                per = (len(all_r) + 5) // 6
+                target_rounds = all_r[(shard_int - 1) * per : shard_int * per]
+            checkpoint_name = f"shard_{shard_int}.json"
+    elif manifest_data and manifest_data.get("run_targets"):
+        explicit_slugs = [e["slug"] for e in manifest_data["run_targets"]]
+        checkpoint_name = "behavioral_all.json"
     else:
         max_r = max(rounds.keys()) if rounds else 1
         target_rounds = list(range(args.start_round, min(args.end_round, max_r) + 1))
@@ -2297,26 +2588,45 @@ async def run_pipeline(args: argparse.Namespace) -> None:
 
         for idx, slug in enumerate(batch_slugs, 1):
             url = resolve_target_url(slug, manifest_map)
-            already_done = args.resume and slug in completed_map
+            already_done = args.resume and (
+                (use_behavioral and is_behavioral_v2_complete(slug))
+                or (not use_behavioral and slug in completed_map)
+            )
+            if already_done and use_behavioral:
+                print(f"  [{idx:02d}/{len(batch_slugs):02d}] {slug:36s} | SKIP (behavioral_journey_v2 complete)", flush=True)
+                continue
 
-            if args.live_recrawl and not already_done:
+            if do_live and not already_done:
                 assert pool is not None
-                meta = await capture_target_live(
-                    pool=pool,
-                    slug=slug,
-                    url=url,
-                    raw_dir=RAW_DIR,
-                    wiki_targets_dir=TARGETS_DIR,
-                    deadline_seconds=120.0,
-                    retry_extended=args.retry_extended,
-                    force_tier2=args.force_tier2,
-                )
+                if use_behavioral:
+                    meta = await capture_target_behavioral(
+                        pool=pool,
+                        slug=slug,
+                        url=url,
+                        raw_dir=RAW_DIR,
+                        wiki_targets_dir=TARGETS_DIR,
+                        deadline_seconds=220.0 if args.retry_extended else 160.0,
+                        retry_extended=args.retry_extended,
+                        force_tier2=args.force_tier2,
+                    )
+                else:
+                    meta = await capture_target_live(
+                        pool=pool,
+                        slug=slug,
+                        url=url,
+                        raw_dir=RAW_DIR,
+                        wiki_targets_dir=TARGETS_DIR,
+                        deadline_seconds=120.0,
+                        retry_extended=args.retry_extended,
+                        force_tier2=args.force_tier2,
+                    )
             else:
                 meta, _, _, _, _ = load_raw_bundle(slug)
                 if not meta:
                     meta = {"target_name": slug, "url": url, "status": "blocked", "block_reason": "Missing metadata.json"}
 
             meta, computed, dom_text, full_css, soup = load_raw_bundle(slug)
+            behavior = load_behavior_bundle(slug) if (use_behavioral or meta.get("capture_mode") == "behavioral_journey_v2") else None
             status = meta.get("status", "analyzed")
 
             if status == "blocked":
@@ -2327,6 +2637,48 @@ async def run_pipeline(args: argparse.Namespace) -> None:
                     f"  [{idx:02d}/{len(batch_slugs):02d}] {slug:36s} | BLOCKED (http={meta.get('http_status')}) | {reason[:70]}",
                     flush=True,
                 )
+            elif behavior is not None:
+                desktop_webp = TARGETS_DIR / slug / "assets" / "desktop-journey.webp"
+                mobile_webp = TARGETS_DIR / slug / "assets" / "mobile-journey.webp"
+                d_dims = get_png_dimensions(desktop_webp)
+                m_dims = get_png_dimensions(mobile_webp)
+                d_metrics = compute_png_visual_metrics(desktop_webp, top_fold_height=828)
+                m_metrics = compute_png_visual_metrics(mobile_webp, top_fold_height=872)
+                if (
+                    d_dims[0] != 1280
+                    or not (828 <= d_dims[1] < 16383)
+                    or m_dims[0] != 390
+                    or not (872 <= m_dims[1] < 16383)
+                ):
+                    reason = f"Invalid live WebP filmstrip dimensions (desktop={d_dims[0]}x{d_dims[1]}, mobile={m_dims[0]}x{m_dims[1]})"
+                    meta["status"] = "blocked"
+                    meta["capture_tier"] = "none"
+                    meta["block_reason"] = reason
+                    atomic_write_text(RAW_DIR / slug / "metadata.json", json.dumps(meta, indent=2))
+                    write_blocked_target(slug, reason, meta)
+                    blocked_in_round.append((slug, reason, meta))
+                    print(f"  [{idx:02d}/{len(batch_slugs):02d}] {slug:36s} | BLOCKED | {reason}", flush=True)
+                elif is_solid_blank_png(d_metrics) or is_solid_blank_png(m_metrics):
+                    reason = BLANK_VIEWPORT_BLOCK_REASON
+                    meta["status"] = "blocked"
+                    meta["capture_tier"] = "none"
+                    meta["block_reason"] = reason
+                    atomic_write_text(RAW_DIR / slug / "metadata.json", json.dumps(meta, indent=2))
+                    write_blocked_target(slug, reason, meta)
+                    blocked_in_round.append((slug, reason, meta))
+                    print(f"  [{idx:02d}/{len(batch_slugs):02d}] {slug:36s} | BLOCKED (blank WebP) | {reason}", flush=True)
+                else:
+                    info = extract_ground_truth(slug, meta, computed, dom_text, full_css, soup)
+                    bp_lines, fence_lines = write_ui_ux_and_blueprint(slug, info, meta, d_dims, m_dims, behavior=behavior)
+                    round_metrics.append((slug, info, meta, d_dims, m_dims, bp_lines, fence_lines))
+                    tot_kb = behavior.get("total_asset_bytes", 0) // 1024
+                    print(
+                        f"  [{idx:02d}/{len(batch_slugs):02d}] {slug:36s} | V2-WEBP ({meta.get('capture_tier', '?'):11s} · {behavior.get('scroll_driver', '?'):6s}) | "
+                        f"KF:{len(behavior.get('desktop_keyframes', []))} Sub:{len(behavior.get('subpages', []))} | "
+                        f"D:{d_dims[0]}x{d_dims[1]} ({d_dims[2]//1024}KB) M:{m_dims[0]}x{m_dims[1]} ({m_dims[2]//1024}KB) Total:{tot_kb}KB | "
+                        f"{meta.get('elapsed_seconds', 0):.1f}s",
+                        flush=True,
+                    )
             else:
                 desktop_png = TARGETS_DIR / slug / "assets" / "desktop.png"
                 mobile_png = TARGETS_DIR / slug / "assets" / "mobile.png"
@@ -2416,9 +2768,9 @@ async def run_pipeline(args: argparse.Namespace) -> None:
         if rnum is not None:
             write_round_trace(rnum, batch_slugs, round_metrics, blocked_in_round, eval_results)
 
-    if args.live_recrawl:
+    if do_live:
         async with async_playwright() as p:
-            pool = BrowserPool(p, recycle_every=20)
+            pool = BrowserPool(p, recycle_every=12 if use_behavioral else 20)
             try:
                 if explicit_slugs is not None:
                     await process_slug_batch(pool, explicit_slugs, rnum=None)
@@ -2438,19 +2790,21 @@ async def run_pipeline(args: argparse.Namespace) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Live 3-tier recrawl & blueprint generator (C1-C15)")
+    parser = argparse.ArgumentParser(description="Live 3-tier behavioral crawl & blueprint generator (C1-C15 + behavioral_journey_v2)")
     parser.add_argument(
         "--manifest",
         type=str,
         default=os.environ.get("AUDIT_MANIFEST"),
-        help="Optional path to audit_manifest.json (defaults to AUDIT_MANIFEST env or enumerating wiki/targets/*)",
+        help="Optional path to manifest JSON (supports both behavioral_manifest.json run_targets and legacy audit_manifest.json)",
     )
-    parser.add_argument("--shard", type=int, choices=[1, 2, 3, 4, 5, 6], default=None, help="Disjoint shard ID (1..6)")
+    parser.add_argument("--shard", type=str, default=None, help="Disjoint shard spec: <k>/<n> (1-indexed) or legacy 1..6")
     parser.add_argument("--slugs", type=str, default=None, help="Comma-separated target slugs")
+    parser.add_argument("--targets", type=str, default=None, help="Alias for --slugs (comma-separated target slugs)")
     parser.add_argument("--start-round", type=int, default=1, help="Start round when not using --shard/--slugs")
     parser.add_argument("--end-round", type=int, default=58, help="End round when not using --shard/--slugs")
     parser.add_argument("--live-recrawl", action="store_true", help="Perform live Playwright capture before regenerating docs")
-    parser.add_argument("--resume", action="store_true", help="Resume from checkpoint and skip already completed slugs")
+    parser.add_argument("--behavioral", action="store_true", help="Run full behavioral_journey_v2 WebP crawl (scroll + probes + subpages)")
+    parser.add_argument("--resume", action="store_true", help="Resume from checkpoint / skip already completed behavioral_journey_v2 slugs")
     parser.add_argument("--retry-extended", action="store_true", help="Use extended timeouts and waits for retry worker")
     parser.add_argument("--force-tier2", action="store_true", help="Force Tier 2 SwiftShader WebGL capture directly")
     parser.add_argument("--checkpoint-dir", type=str, default=str(DEFAULT_CHECKPOINT_DIR), help="Directory for shard checkpoints")

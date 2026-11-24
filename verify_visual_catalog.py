@@ -38,6 +38,7 @@ from evaluate_batch import (
     DEFAULT_MANIFEST,
     RAW_DIR,
     TARGETS_DIR,
+    check_behavioral_scroll_coverage,
     evaluate_blocked_target,
     is_blocked_target,
     split_frontmatter,
@@ -99,15 +100,20 @@ def _render_contact_sheets(
             draw.rectangle([x0, y0, x0 + tile_w - 1, y0 + tile_h - 1], fill=(28, 31, 38), outline=border_col, width=2)
 
             slug = item["slug"]
-            d_path = TARGETS_DIR / slug / "assets" / "desktop.png"
-            m_path = TARGETS_DIR / slug / "assets" / "mobile.png"
+            assets_dir = TARGETS_DIR / slug / "assets"
+            d_path = assets_dir / "desktop-journey.webp" if (assets_dir / "desktop-journey.webp").exists() else (assets_dir / "desktop.png")
+            m_path = assets_dir / "mobile-journey.webp" if (assets_dir / "mobile-journey.webp").exists() else (assets_dir / "mobile.png")
+            d_is_webp = d_path.suffix == ".webp"
+            m_is_webp = m_path.suffix == ".webp"
 
             # Desktop top-fold thumbnail
             if d_path.exists():
                 try:
                     with Image.open(d_path) as im:
                         w, h = im.size
-                        crop = im.crop((0, 0, w, min(h, 900))).convert("RGB")
+                        y_start = 28 if d_is_webp else 0
+                        y_end = min(h, y_start + (800 if d_is_webp else 900))
+                        crop = im.crop((0, y_start, w, y_end)).convert("RGB")
                         crop = crop.resize((desk_w, desk_h), Image.Resampling.LANCZOS)
                         sheet.paste(crop, (x0 + 8, y0 + 8))
                 except Exception:
@@ -120,7 +126,9 @@ def _render_contact_sheets(
                 try:
                     with Image.open(m_path) as im:
                         w, h = im.size
-                        crop = im.crop((0, 0, w, min(h, 844))).convert("RGB")
+                        y_start = 28 if m_is_webp else 0
+                        y_end = min(h, y_start + 844)
+                        crop = im.crop((0, y_start, w, y_end)).convert("RGB")
                         crop = crop.resize((mob_w, mob_h), Image.Resampling.LANCZOS)
                         sheet.paste(crop, (x0 + 8 + desk_w + 8, y0 + 8))
                 except Exception:
@@ -155,13 +163,15 @@ def verify_catalog(
 ) -> Dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Pass 1: hash all existing analyzed PNGs to catch global duplicates
+    # Pass 1: hash all existing analyzed primary assets (WebP v2 or legacy PNG) to catch global duplicates
     hash_owners: Dict[str, List[str]] = {}
     for slug in slugs:
         if is_blocked_target(slug):
             continue
-        for kind in ("desktop.png", "mobile.png"):
-            p = TARGETS_DIR / slug / "assets" / kind
+        adir = TARGETS_DIR / slug / "assets"
+        pair = ("desktop-journey.webp", "mobile-journey.webp") if (adir / "desktop-journey.webp").exists() else ("desktop.png", "mobile.png")
+        for kind in pair:
+            p = adir / kind
             if p.exists() and p.stat().st_size > 0:
                 h = hashlib.sha256(p.read_bytes()).hexdigest()
                 hash_owners.setdefault(h, []).append(f"{slug}/{kind}")
@@ -231,28 +241,54 @@ def verify_catalog(
             counts["non_live_analyzed"] += 1
             fail_reasons.append(f"Non-live provenance (capture={cap_val}, d={cap_d}, m={cap_m_v})")
 
-        d_metrics = compute_png_visual_metrics(tdir / "assets" / "desktop.png", top_fold_height=900)
-        m_metrics = compute_png_visual_metrics(tdir / "assets" / "mobile.png", top_fold_height=844)
+        is_v2 = bool(re.search(r"^capture_mode:\s*behavioral_journey_v2\b", fm, re.MULTILINE))
+        adir = tdir / "assets"
+        if is_v2:
+            d_metrics = compute_png_visual_metrics(adir / "desktop-journey.webp", top_fold_height=828)
+            m_metrics = compute_png_visual_metrics(adir / "mobile-journey.webp", top_fold_height=872)
+            leftover_pngs = [p.name for p in adir.glob("*.png")] if adir.exists() else []
+            if leftover_pngs:
+                fail_reasons.append(f"Leftover legacy PNG(s) in v2 target: {leftover_pngs}")
+            beh_path = RAW_DIR / slug / "behavior.json"
+            if beh_path.exists():
+                try:
+                    beh_data = json.loads(beh_path.read_text(encoding="utf-8", errors="ignore"))
+                    cov_warn = check_behavioral_scroll_coverage(beh_data)
+                    if cov_warn:
+                        warn_reasons.append(cov_warn)
+                except Exception as exc:
+                    warn_reasons.append(f"Corrupt behavior.json ({exc}) (P3)")
+        else:
+            d_metrics = compute_png_visual_metrics(adir / "desktop.png", top_fold_height=900)
+            m_metrics = compute_png_visual_metrics(adir / "mobile.png", top_fold_height=844)
 
         if not d_metrics.get("valid"):
             counts["corrupt_or_missing_png"] += 1
-            fail_reasons.append("Desktop PNG missing or corrupt")
+            fail_reasons.append("Desktop visual asset missing or corrupt")
         else:
-            if d_metrics["height"] > 2400:
-                counts["extreme_height_gt_2400"] += 1
-            if d_metrics["width"] != 1440 or not (900 <= d_metrics["height"] <= 2400):
-                fail_reasons.append(f"Desktop dims out of bounds: {d_metrics['width']}x{d_metrics['height']}")
+            if is_v2:
+                if d_metrics["width"] != 1280 or not (828 <= d_metrics["height"] < 16383):
+                    fail_reasons.append(f"Desktop WebP journey dims out of bounds: {d_metrics['width']}x{d_metrics['height']}")
+            else:
+                if d_metrics["height"] > 2400:
+                    counts["extreme_height_gt_2400"] += 1
+                if d_metrics["width"] != 1440 or not (900 <= d_metrics["height"] <= 2400):
+                    fail_reasons.append(f"Desktop dims out of bounds: {d_metrics['width']}x{d_metrics['height']}")
             if d_metrics["gray_std"] < 8.0 and d_metrics["edge_density"] < 0.003:
                 fail_reasons.append(f"Desktop solid blank (std={d_metrics['gray_std']}, edge={d_metrics['edge_density']})")
-            elif d_metrics["dominant_q16_pct"] > 85.0 or d_metrics["gray_std"] < 18.0 or d_metrics["top_fold_dominant_q16_pct"] > 92.0:
+            elif is_v2 and d_metrics["gray_std"] < 18.0 and d_metrics["dominant_q16_pct"] > 92.0:
+                warn_reasons.append(
+                    f"Desktop v2 filmstrip low-entropy (std={d_metrics['gray_std']}, q16={d_metrics['dominant_q16_pct']}%) (P2)"
+                )
+            elif not is_v2 and (d_metrics["dominant_q16_pct"] > 85.0 or d_metrics["gray_std"] < 18.0 or d_metrics["top_fold_dominant_q16_pct"] > 92.0):
                 warn_reasons.append(
                     f"Desktop borderline low-entropy (std={d_metrics['gray_std']}, q16={d_metrics['dominant_q16_pct']}%, tf_q16={d_metrics['top_fold_dominant_q16_pct']}%)"
                 )
-            if d_metrics.get("has_blank_tail"):
+            if not is_v2 and d_metrics.get("has_blank_tail"):
                 warn_reasons.append(
                     f"Desktop blank bottom tail (tail_std={d_metrics.get('tail_gray_std')}, tail_edge={d_metrics.get('tail_edge_density')})"
                 )
-            if d_metrics.get("has_mid_blank_void"):
+            if not is_v2 and d_metrics.get("has_mid_blank_void"):
                 warn_reasons.append(
                     f"Desktop mid-page solid void ({d_metrics.get('max_blank_void_px')}px at y={d_metrics.get('mid_blank_void_range')})"
                 )
@@ -261,23 +297,27 @@ def verify_catalog(
 
         if not m_metrics.get("valid"):
             counts["corrupt_or_missing_png"] += 1
-            fail_reasons.append("Mobile PNG missing or corrupt")
+            fail_reasons.append("Mobile visual asset missing or corrupt")
         else:
-            if m_metrics["height"] > 2400:
-                counts["extreme_height_gt_2400"] += 1
-            if m_metrics["width"] != 390 or not (844 <= m_metrics["height"] <= 2400):
-                fail_reasons.append(f"Mobile dims out of bounds: {m_metrics['width']}x{m_metrics['height']}")
+            if is_v2:
+                if m_metrics["width"] != 390 or not (872 <= m_metrics["height"] < 16383):
+                    fail_reasons.append(f"Mobile WebP journey dims out of bounds: {m_metrics['width']}x{m_metrics['height']}")
+            else:
+                if m_metrics["height"] > 2400:
+                    counts["extreme_height_gt_2400"] += 1
+                if m_metrics["width"] != 390 or not (844 <= m_metrics["height"] <= 2400):
+                    fail_reasons.append(f"Mobile dims out of bounds: {m_metrics['width']}x{m_metrics['height']}")
             if m_metrics["gray_std"] < 8.0 and m_metrics["edge_density"] < 0.003:
                 fail_reasons.append(f"Mobile solid blank (std={m_metrics['gray_std']}, edge={m_metrics['edge_density']})")
-            elif m_metrics["dominant_q16_pct"] > 85.0 or m_metrics["gray_std"] < 18.0 or m_metrics["top_fold_dominant_q16_pct"] > 92.0:
+            elif not is_v2 and (m_metrics["dominant_q16_pct"] > 85.0 or m_metrics["gray_std"] < 18.0 or m_metrics["top_fold_dominant_q16_pct"] > 92.0):
                 warn_reasons.append(
                     f"Mobile borderline low-entropy (std={m_metrics['gray_std']}, q16={m_metrics['dominant_q16_pct']}%)"
                 )
-            if m_metrics.get("has_blank_tail"):
+            if not is_v2 and m_metrics.get("has_blank_tail"):
                 warn_reasons.append(
                     f"Mobile blank bottom tail (tail_std={m_metrics.get('tail_gray_std')}, tail_edge={m_metrics.get('tail_edge_density')})"
                 )
-            if m_metrics.get("has_mid_blank_void"):
+            if not is_v2 and m_metrics.get("has_mid_blank_void"):
                 warn_reasons.append(
                     f"Mobile mid-page solid void ({m_metrics.get('max_blank_void_px')}px at y={m_metrics.get('mid_blank_void_range')})"
                 )

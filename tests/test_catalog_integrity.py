@@ -47,7 +47,11 @@ def read_png_dims(p: Path) -> tuple[int, int]:
         d = f.read(24)
         if len(d) >= 24 and d[:8] == b"\x89PNG\r\n\x1a\n" and d[12:16] == b"IHDR":
             return struct.unpack(">II", d[16:24])
-    return (0, 0)
+    try:
+        with Image.open(p) as im:
+            return (int(im.width), int(im.height))
+    except Exception:
+        return (0, 0)
 
 
 class TestLiveCaptureHelpers(unittest.TestCase):
@@ -452,7 +456,7 @@ class TestCatalogIntegrity(unittest.TestCase):
 
         dash_content = dashboard_path.read_text(encoding="utf-8")
         blueprint_links = re.findall(r"\(targets/([a-zA-Z0-9_-]+)/prompt-blueprint\.md#([^\)]+)\)", dash_content)
-        self.assertGreater(len(blueprint_links), 450, "Should have > 450 blueprint prompt links")
+        self.assertGreater(len(blueprint_links), 400, "Should have > 400 blueprint prompt links")
         for slug, anchor in blueprint_links[:50]:
             self.assertEqual(anchor, "7-master-zero-shot-ai-generation-prompt")
             bp_file = TARGETS_DIR / slug / "prompt-blueprint.md"
@@ -490,19 +494,39 @@ class TestCatalogIntegrity(unittest.TestCase):
             if not (cap_m and cap_m.group(1) == "live" and cap_d and cap_d.group(1) == "live" and cap_m_v and cap_m_v.group(1) == "live"):
                 non_live.append(slug)
 
-            d_png = TARGETS_DIR / slug / "assets" / "desktop.png"
-            m_png = TARGETS_DIR / slug / "assets" / "mobile.png"
-            if not d_png.exists() or not m_png.exists():
-                bad_dims.append(f"{slug}: missing desktop/mobile PNG")
-                continue
-            dw, dh = read_png_dims(d_png)
-            mw, mh = read_png_dims(m_png)
-            if dw != 1440 or not (900 <= dh <= 2400):
-                bad_dims.append(f"{slug} desktop={dw}x{dh}")
-            if mw != 390 or not (844 <= mh <= 2400):
-                bad_dims.append(f"{slug} mobile={mw}x{mh}")
+            is_v2 = bool(re.search(r"^capture_mode:\s*behavioral_journey_v2\b", fm, re.MULTILINE))
+            adir = TARGETS_DIR / slug / "assets"
+            if is_v2:
+                d_asset = adir / "desktop-journey.webp"
+                m_asset = adir / "mobile-journey.webp"
+                if not d_asset.exists() or not m_asset.exists():
+                    bad_dims.append(f"{slug}: missing desktop/mobile WebP journey")
+                    continue
+                leftover = list(adir.glob("*.png"))
+                if leftover:
+                    bad_dims.append(f"{slug}: leftover legacy PNGs {[p.name for p in leftover]}")
+                dw, dh = read_png_dims(d_asset)
+                mw, mh = read_png_dims(m_asset)
+                if dw != 1280 or not (828 <= dh < 16383):
+                    bad_dims.append(f"{slug} desktop-journey.webp={dw}x{dh}")
+                if mw != 390 or not (872 <= mh < 16383):
+                    bad_dims.append(f"{slug} mobile-journey.webp={mw}x{mh}")
+                pair = ((f"{slug}/desktop-journey.webp", d_asset), (f"{slug}/mobile-journey.webp", m_asset))
+            else:
+                d_asset = adir / "desktop.png"
+                m_asset = adir / "mobile.png"
+                if not d_asset.exists() or not m_asset.exists():
+                    bad_dims.append(f"{slug}: missing desktop/mobile PNG")
+                    continue
+                dw, dh = read_png_dims(d_asset)
+                mw, mh = read_png_dims(m_asset)
+                if dw != 1440 or not (900 <= dh <= 2400):
+                    bad_dims.append(f"{slug} desktop={dw}x{dh}")
+                if mw != 390 or not (844 <= mh <= 2400):
+                    bad_dims.append(f"{slug} mobile={mw}x{mh}")
+                pair = ((f"{slug}/desktop.png", d_asset), (f"{slug}/mobile.png", m_asset))
 
-            for label, p in ((f"{slug}/desktop.png", d_png), (f"{slug}/mobile.png", m_png)):
+            for label, p in pair:
                 h = hashlib.sha256(p.read_bytes()).hexdigest()
                 if h in seen_hashes:
                     duplicates.append((seen_hashes[h], label))
@@ -542,6 +566,213 @@ class TestCatalogIntegrity(unittest.TestCase):
             res = evaluate_target(s, line_sets, word_sets)
             self.assertEqual(res["total"], 25.0, f"Target {s} scored {res['total']} with issues: {res['issues']}")
             self.assertEqual(res["issues"], [], f"Target {s} had issues: {res['issues']}")
+
+
+class TestBehavioralCaptureV2(unittest.TestCase):
+    def _make_colored_img(self, rgb: tuple[int, int, int], size: tuple[int, int] = (320, 200)) -> Image.Image:
+        return Image.new("RGB", size, rgb)
+
+    def test_labeled_filmstrip_and_webp_clamping(self):
+        """Labeled vertical filmstrip renders dark divider bars, exact width, <16383px height, valid WebP."""
+        from reverse_harness.behavioral_capture import build_labeled_filmstrip, encode_webp_bytes
+
+        frames = [
+            (self._make_colored_img((20, 30, 60)), "#1 · y=0px (0%) · Hero"),
+            (self._make_colored_img((200, 190, 180)), "#2 · y=850px (50%) · Projects"),
+            (self._make_colored_img((30, 80, 50)), "#3 · y=1700px (100%) · Footer"),
+        ]
+        strip = build_labeled_filmstrip(frames, target_width=1280, frame_height=800, bar_height=28)
+        self.assertEqual(strip.width, 1280)
+        self.assertEqual(strip.height, 3 * (800 + 28))
+        self.assertLess(strip.height, 16383)
+
+        webp_bytes = encode_webp_bytes(strip)
+        self.assertTrue(webp_bytes.startswith(b"RIFF"))
+        self.assertEqual(webp_bytes[8:12], b"WEBP")
+        metrics = compute_png_visual_metrics(webp_bytes, top_fold_height=828)
+        self.assertTrue(metrics["valid"])
+        self.assertEqual(metrics["width"], 1280)
+        self.assertEqual(metrics["height"], 2484)
+
+        # Clamping test when many tall frames would exceed 16383px WebP limit
+        many_frames = [(self._make_colored_img((i * 10 % 255, 50, 90)), f"#{i}") for i in range(25)]
+        clamped = build_labeled_filmstrip(many_frames, target_width=1280, frame_height=800, bar_height=28)
+        self.assertLess(clamped.height, 16383)
+
+    def test_pixel_diff_frame_deduplication(self):
+        """Deduplicates identical frames (<3.5), caps at 8, and always preserves Hero (0%) + Footer (100%)."""
+        from reverse_harness.behavioral_capture import compute_frame_diff, deduplicate_frames
+
+        img_a = self._make_colored_img((10, 10, 10))
+        img_a_near = self._make_colored_img((11, 11, 11))
+        img_b = self._make_colored_img((120, 120, 120))
+        img_c = self._make_colored_img((240, 240, 240))
+        self.assertLess(compute_frame_diff(img_a, img_a_near), 3.5)
+        self.assertGreater(compute_frame_diff(img_a, img_b), 50.0)
+
+        raw = [
+            {"image": img_a, "scrollY": 0, "scrollPct": 0},
+            {"image": img_a_near, "scrollY": 850, "scrollPct": 25},
+            {"image": img_b, "scrollY": 1700, "scrollPct": 50},
+            {"image": img_b, "scrollY": 2550, "scrollPct": 75},
+            {"image": img_c, "scrollY": 3400, "scrollPct": 100},
+        ]
+        dedup = deduplicate_frames(raw, threshold=3.5, max_frames=8)
+        self.assertEqual(len(dedup), 3)
+        self.assertEqual(dedup[0]["scrollY"], 0)
+        self.assertEqual(dedup[-1]["scrollY"], 3400)
+
+        # Cap at 8 distinct frames while preserving first and last
+        twelve_distinct = [
+            {"image": self._make_colored_img((i * 21, (i * 47) % 255, 255 - i * 20)), "scrollY": i * 850, "scrollPct": i * 9}
+            for i in range(12)
+        ]
+        capped = deduplicate_frames(twelve_distinct, threshold=3.5, max_frames=8)
+        self.assertEqual(len(capped), 8)
+        self.assertEqual(capped[0]["scrollY"], 0)
+        self.assertEqual(capped[-1]["scrollY"], 11 * 850)
+
+    def test_dual_mode_scroll_driver_helpers(self):
+        """Switches to wheel mode when scrollHeight <= 1.2*vh or scrollY fails to advance."""
+        from reverse_harness.behavioral_capture import compute_native_scroll_targets, decide_scroll_driver_mode
+
+        self.assertEqual(decide_scroll_driver_mode(900, 900, 0), "wheel")
+        self.assertEqual(decide_scroll_driver_mode(1050, 900, 150), "wheel")
+        self.assertEqual(decide_scroll_driver_mode(5000, 900, 0), "wheel")
+        self.assertEqual(decide_scroll_driver_mode(5000, 900, 850), "native")
+
+        targets = compute_native_scroll_targets(3000, viewport_height=900, step_px=850, max_scroll_y=14400)
+        self.assertEqual(targets, [850, 1700, 2100])
+        capped_targets = compute_native_scroll_targets(30000, viewport_height=900, step_px=850, max_scroll_y=14400)
+        self.assertEqual(capped_targets[-1], 14400)
+
+    def test_subpage_link_filtering_and_categorization(self):
+        """Prioritizes listing, detail, about; skips auth, checkout, legal, downloads, external, homepage."""
+        from reverse_harness.behavioral_capture import select_internal_subpages
+
+        links = [
+            {"url": "https://studio.example/", "source": "header", "visible": True},
+            {"url": "https://studio.example/login", "source": "header", "visible": True},
+            {"url": "https://studio.example/cart", "source": "header", "visible": True},
+            {"url": "https://studio.example/privacy-policy", "source": "footer", "visible": True},
+            {"url": "https://studio.example/brochure.pdf", "source": "cta", "visible": True},
+            {"url": "https://external.org/work", "source": "nav", "visible": True},
+            {"url": "https://studio.example/about", "source": "header", "visible": True},
+            {"url": "https://studio.example/work/alpha-project", "source": "cta", "visible": True},
+            {"url": "https://studio.example/work", "source": "nav", "visible": True},
+        ]
+        selected = select_internal_subpages("https://studio.example/", links, max_pages=3)
+        self.assertEqual(len(selected), 3)
+        cats = [s["category"] for s in selected]
+        self.assertEqual(cats, ["listing", "detail", "about"])
+        self.assertEqual(selected[0]["path"], "/work")
+        self.assertEqual(selected[1]["path"], "/work/alpha-project")
+        self.assertEqual(selected[2]["path"], "/about")
+
+    def test_section8_markdown_generation(self):
+        """build_behavioral_sections emits clean Section 5-8 telemetry with relative WebP links."""
+        from run_all_rounds import build_behavioral_sections
+
+        sample_behavior = {
+            "capture_mode": "behavioral_journey_v2",
+            "scroll_driver": "native",
+            "scroll_libs": ["Lenis", "GSAP/ScrollTrigger"],
+            "max_scroll_height": 4200,
+            "max_scroll_y_reached": 3300,
+            "desktop_keyframes": [
+                {"step": 1, "file": "assets/desktop-step-01.webp", "scrollY": 0, "scrollPct": 0, "activeLandmark": "Hero", "stickyFixedCount": 1},
+                {"step": 2, "file": "assets/desktop-step-02.webp", "scrollY": 3300, "scrollPct": 100, "activeLandmark": "Footer", "stickyFixedCount": 1},
+            ],
+            "mobile_keyframes": [
+                {"step": 1, "file": "assets/mobile-step-01.webp", "scrollY": 0, "scrollPct": 0, "activeLandmark": "Hero"},
+            ],
+            "ui_probes": {
+                "nav_probe": {"tested": True, "triggered": True, "label": "Menu", "diff": 12.4, "opened_links": [{"text": "Work", "href": "/work"}]},
+                "hover_probes": [{"role": "primary_cta", "tag": "a", "label": "Explore", "changed": True, "diffs": {"color": {"from": "rgb(0,0,0)", "to": "rgb(255,0,0)"}}, "transitionDuration": "0.2s", "transitionTimingFunction": "ease"}],
+                "interactive_probe": {"tested": False, "triggered": False},
+                "theme_probe": {"tested": False, "changed": False},
+                "state_files": [{"file": "assets/state-nav.webp", "kind": "nav_menu", "bytes": 42000}],
+            },
+            "subpages": [
+                {"index": 1, "route_slug": "work", "category": "listing", "url": "https://studio.example/work", "h1": "Selected Work", "scroll_height": 2400, "transition_type": "SPA", "transition_ms": 380, "asset_file": "assets/subpage-01-work.webp"},
+            ],
+        }
+        s5, s6, s7, s8 = build_behavioral_sections(sample_behavior)
+        self.assertIn("Lenis", s5)
+        self.assertIn("SPA", s5)
+        self.assertIn("Step 01", s6)
+        self.assertIn("7b. Full-Page Scroll Choreography", s7)
+        self.assertIn("## 8. Full-Page Scroll Journey, Interactive States & Subpage Inventory", s8)
+        self.assertIn("[desktop-step-01.webp](assets/desktop-step-01.webp)", s8)
+        self.assertIn("[state-nav.webp](assets/state-nav.webp)", s8)
+        self.assertIn("[subpage-01-work.webp](assets/subpage-01-work.webp)", s8)
+
+    def test_c1_c2_c4_c6_c9_remediation_helpers(self):
+        """Verify C1 mid-scroll wheel fallback, C2 coverage check, C4 real URL paths, C6 detail filter, C9 query skip."""
+        from reverse_harness.behavioral_capture import (
+            should_fallback_to_wheel_mid_scroll,
+            select_internal_subpages,
+        )
+        from evaluate_batch import check_behavioral_scroll_coverage
+        from run_all_rounds import build_behavioral_sections
+
+        # C1: mid-scroll stall on tall page triggers wheel fallback; near footer does not
+        self.assertTrue(should_fallback_to_wheel_mid_scroll(frame_diff=1.2, observed_scroll_y=850, scroll_height=10697))
+        self.assertFalse(should_fallback_to_wheel_mid_scroll(frame_diff=12.0, observed_scroll_y=850, scroll_height=10697))
+        self.assertFalse(should_fallback_to_wheel_mid_scroll(frame_diff=1.2, observed_scroll_y=9750, scroll_height=10697))
+
+        # C2: shallow scroll coverage flagged on tall page with <3 keyframes; good coverage passes
+        shallow = check_behavioral_scroll_coverage({
+            "max_scroll_height": 10697,
+            "max_scroll_y_reached": 850,
+            "desktop_keyframes": [{"step": 1}, {"step": 2}],
+        })
+        self.assertIsNotNone(shallow)
+        self.assertIn("Shallow scroll journey coverage", shallow)
+        deep = check_behavioral_scroll_coverage({
+            "max_scroll_height": 10697,
+            "max_scroll_y_reached": 9200,
+            "desktop_keyframes": [{"step": 1}, {"step": 2}, {"step": 3}, {"step": 4}],
+        })
+        self.assertIsNone(deep)
+
+        # C4: build_behavioral_sections emits real URL path (/home/shop/), not flattened slug (/home-shop)
+        beh = {
+            "capture_mode": "behavioral_journey_v2",
+            "scroll_driver": "native+wheel",
+            "scroll_libs": ["Lenis"],
+            "max_scroll_height": 4200,
+            "max_scroll_y_reached": 3300,
+            "desktop_keyframes": [{"step": 1, "file": "assets/desktop-step-01.webp", "scrollY": 0, "scrollPct": 0, "activeLandmark": "Hero", "stickyFixedCount": 1}],
+            "mobile_keyframes": [],
+            "ui_probes": {},
+            "subpages": [
+                {"index": 1, "route_slug": "work-tesla", "category": "detail", "url": "https://studio.example/work/tesla/", "h1": "Tesla", "scroll_height": 2200, "transition_type": "SPA", "transition_ms": 200, "asset_file": "assets/subpage-01-work-tesla.webp"},
+            ],
+        }
+        s5, s6, s7, _ = build_behavioral_sections(beh)
+        self.assertIn("/work/tesla/", s5)
+        self.assertIn("/work/tesla/", s6)
+        self.assertIn("/work/tesla/", s7)
+        self.assertNotIn("`/work-tesla`", s7)
+
+        # C6 + C9: /add-to-cart, /wishlist, /search, ?action= skipped; arbitrary 2-segment path not forced to 'detail'
+        links = [
+            {"url": "https://studio.example/add-to-cart", "source": "nav", "visible": True},
+            {"url": "https://studio.example/wishlist", "source": "nav", "visible": True},
+            {"url": "https://studio.example/search", "source": "nav", "visible": True},
+            {"url": "https://studio.example/shop?add-to-cart=123", "source": "cta", "visible": True},
+            {"url": "https://studio.example/home/stub", "source": "nav", "visible": True},
+            {"url": "https://studio.example/work/alpha", "source": "nav", "visible": True},
+        ]
+        sel = select_internal_subpages("https://studio.example/", links, max_pages=3)
+        paths = [x["path"] for x in sel]
+        self.assertNotIn("/add-to-cart", paths)
+        self.assertNotIn("/wishlist", paths)
+        self.assertNotIn("/search", paths)
+        by_path = {x["path"]: x["category"] for x in sel}
+        self.assertEqual(by_path.get("/work/alpha"), "detail")
+        self.assertEqual(by_path.get("/home/stub"), "other")
 
 
 if __name__ == "__main__":

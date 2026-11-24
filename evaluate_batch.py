@@ -44,6 +44,28 @@ if str(SRC_DIR) not in sys.path:
 
 from reverse_harness.live_capture import compute_png_visual_metrics, detect_preloader_text
 
+
+def check_behavioral_scroll_coverage(behavior: Dict[str, Any]) -> Optional[str]:
+    """
+    C2: Verify top-to-bottom vertical scroll coverage on behavioral_journey_v2 targets.
+    Flags tall pages (>2500px) that reached <60% of scrollHeight AND captured <3 keyframes.
+    """
+    if not isinstance(behavior, dict):
+        return None
+    max_h = int(behavior.get("max_scroll_height") or 0)
+    max_y = int(behavior.get("max_scroll_y_reached") or 0)
+    kfs = behavior.get("desktop_keyframes") or []
+    if max_h <= 2500:
+        return None
+    eff_max_h = min(max_h, 14400 + 900)
+    coverage = min(1.0, (max_y + 900) / max(1, eff_max_h))
+    if coverage < 0.60 and len(kfs) < 3:
+        return (
+            f"Shallow scroll journey coverage: reached y={max_y}px/{max_h}px "
+            f"({coverage:.0%}) with {len(kfs)} desktop keyframe(s) (C2)"
+        )
+    return None
+
 TARGETS = [
     "dennypratama-com", "agnestoth-com", "www-sigma-imaging-se", "morrow-valerian-studio",
     "wiro-ae", "www-anduril-com", "www-avilus-com", "www-eladiodieste-com",
@@ -142,11 +164,12 @@ def evaluate_blocked_target(target_name: str) -> Dict[str, Any]:
     if re.search(r"^\s*capture(?:_desktop|_mobile)?:\s*none\b", body, re.MULTILINE):
         issues.append("Blocked blueprint body corruption: stray 'capture: none' outside YAML frontmatter (C15)")
 
-    # C15: zero stray PNGs on blocked targets
-    for asset_name in ("desktop.png", "mobile.png"):
-        ap = target_path / "assets" / asset_name
-        if ap.exists():
-            issues.append(f"Stray PNG exists on blocked target: assets/{asset_name} (C15)")
+    # C15: zero stray PNGs or WebPs on blocked targets
+    assets_dir = target_path / "assets"
+    if assets_dir.exists():
+        for ap in sorted(assets_dir.iterdir()):
+            if ap.is_file() and ap.suffix.lower() in (".png", ".webp"):
+                issues.append(f"Stray visual asset exists on blocked target: assets/{ap.name} (C15)")
 
     if ui_path.exists():
         ui_fm, _ = split_frontmatter(ui_path.read_text(encoding="utf-8", errors="ignore"))
@@ -204,62 +227,118 @@ def evaluate_target(
     secs = split_sections(bp_content)
 
     # 1. Visual Assets, Dimension & Real Live Provenance Verification (0-5 pts — C2, C11, C14)
-    d_metrics = compute_png_visual_metrics(desktop_png, top_fold_height=900)
-    m_metrics = compute_png_visual_metrics(mobile_png, top_fold_height=844)
+    is_v2 = bool(re.search(r"^capture_mode:\s*behavioral_journey_v2\b", fm, re.MULTILINE))
+    assets_dir = target_path / "assets"
+    if is_v2:
+        desktop_asset = assets_dir / "desktop-journey.webp"
+        mobile_asset = assets_dir / "mobile-journey.webp"
+        d_metrics = compute_png_visual_metrics(desktop_asset, top_fold_height=828)
+        m_metrics = compute_png_visual_metrics(mobile_asset, top_fold_height=872)
+    else:
+        desktop_asset = desktop_png
+        mobile_asset = mobile_png
+        d_metrics = compute_png_visual_metrics(desktop_asset, top_fold_height=900)
+        m_metrics = compute_png_visual_metrics(mobile_asset, top_fold_height=844)
+
     d_w, d_h, d_sz = d_metrics.get("width", 0), d_metrics.get("height", 0), d_metrics.get("bytes", 0)
     m_w, m_h, m_sz = m_metrics.get("width", 0), m_metrics.get("height", 0), m_metrics.get("bytes", 0)
 
     asset_score = 0.0
-    if d_metrics.get("valid") and d_w == 1440 and 900 <= d_h <= 2400:
-        if d_metrics["gray_std"] < 8.0 and d_metrics["edge_density"] < 0.003:
-            issues.append(
-                f"Desktop PNG is solid/blank (std={d_metrics['gray_std']}, edge={d_metrics['edge_density']}) (C14)"
-            )
+    if is_v2:
+        if d_metrics.get("valid") and d_w == 1280 and 828 <= d_h < 16383:
+            if d_metrics["gray_std"] < 8.0 and d_metrics["edge_density"] < 0.003:
+                issues.append(f"Desktop WebP journey is solid/blank (std={d_metrics['gray_std']}, edge={d_metrics['edge_density']}) (C14)")
+            else:
+                asset_score += 2.0
+                if d_metrics["dominant_q16_pct"] > 95.0 and d_metrics["edge_density"] < 0.005:
+                    warnings.append(
+                        f"Desktop WebP journey low-entropy/minimal (q16={d_metrics['dominant_q16_pct']}%, edge={d_metrics['edge_density']}) — visual review (P2)"
+                    )
         else:
-            asset_score += 2.0
-            if d_metrics["dominant_q16_pct"] > 95.0 and d_metrics["edge_density"] < 0.005:
-                warnings.append(
-                    f"Desktop PNG low-entropy/minimal (q16={d_metrics['dominant_q16_pct']}%, edge={d_metrics['edge_density']}) — queue for visual review"
-                )
-            if d_metrics.get("has_blank_tail"):
-                warnings.append(
-                    f"Desktop PNG blank bottom tail (tail_std={d_metrics.get('tail_gray_std')}, tail_edge={d_metrics.get('tail_edge_density')}) — R3-1/R4 visual review"
-                )
-            if d_metrics.get("has_mid_blank_void"):
-                warnings.append(
-                    f"Desktop PNG mid-page solid void ({d_metrics.get('max_blank_void_px')}px at y={d_metrics.get('mid_blank_void_range')}) — R3-1 visual review"
-                )
-    else:
-        issues.append(f"Desktop PNG must be valid 1440x[900..2400], got {d_w}x{d_h} ({d_sz}B) (C14)")
+            issues.append(f"Desktop WebP journey must be valid 1280x[828..16382], got {d_w}x{d_h} ({d_sz}B) (C14)")
 
-    if m_metrics.get("valid") and m_w == 390 and 844 <= m_h <= 2400:
-        if m_metrics["gray_std"] < 8.0 and m_metrics["edge_density"] < 0.003:
-            issues.append(
-                f"Mobile PNG is solid/blank (std={m_metrics['gray_std']}, edge={m_metrics['edge_density']}) (C14)"
-            )
+        if m_metrics.get("valid") and m_w == 390 and 872 <= m_h < 16383:
+            if m_metrics["gray_std"] < 8.0 and m_metrics["edge_density"] < 0.003:
+                issues.append(f"Mobile WebP journey is solid/blank (std={m_metrics['gray_std']}, edge={m_metrics['edge_density']}) (C14)")
+            else:
+                asset_score += 2.0
+                if m_metrics["dominant_q16_pct"] > 95.0 and m_metrics["edge_density"] < 0.005:
+                    warnings.append(
+                        f"Mobile WebP journey low-entropy/minimal (q16={m_metrics['dominant_q16_pct']}%, edge={m_metrics['edge_density']}) — visual review (P2)"
+                    )
         else:
-            asset_score += 2.0
-            if m_metrics["dominant_q16_pct"] > 95.0 and m_metrics["edge_density"] < 0.005:
-                warnings.append(
-                    f"Mobile PNG low-entropy/minimal (q16={m_metrics['dominant_q16_pct']}%, edge={m_metrics['edge_density']}) — queue for visual review"
-                )
-            if m_metrics.get("has_blank_tail"):
-                warnings.append(
-                    f"Mobile PNG blank bottom tail (tail_std={m_metrics.get('tail_gray_std')}, tail_edge={m_metrics.get('tail_edge_density')}) — R3-1/R4 visual review"
-                )
-            if m_metrics.get("has_mid_blank_void"):
-                warnings.append(
-                    f"Mobile PNG mid-page solid void ({m_metrics.get('max_blank_void_px')}px at y={m_metrics.get('mid_blank_void_range')}) — R3-1 visual review"
-                )
+            issues.append(f"Mobile WebP journey must be valid 390x[872..16382], got {m_w}x{m_h} ({m_sz}B) (C14)")
+
+        # Strict v2 WebP hygiene: zero leftover .png files in assets/
+        leftover_pngs = [p.name for p in assets_dir.glob("*.png")] if assets_dir.exists() else []
+        if leftover_pngs:
+            asset_score -= 1.0
+            issues.append(f"Leftover legacy PNG(s) in behavioral_journey_v2 target: {leftover_pngs}")
+        if not re.search(r"^asset_format:\s*webp\b", fm, re.MULTILINE):
+            asset_score -= 0.5
+            issues.append("Missing 'asset_format: webp' in behavioral_journey_v2 frontmatter")
+
+        # C2 / P3: Verify vertical scroll journey coverage against raw/<slug>/behavior.json
+        beh_path = RAW_DIR / target_name / "behavior.json"
+        if beh_path.exists():
+            try:
+                beh_data = json.loads(beh_path.read_text(encoding="utf-8", errors="ignore"))
+                cov_warn = check_behavioral_scroll_coverage(beh_data)
+                if cov_warn:
+                    warnings.append(cov_warn)
+            except Exception as exc:
+                warnings.append(f"Corrupt behavior.json ({exc}) — skipped C2 scroll coverage check (P3)")
     else:
-        issues.append(f"Mobile PNG must be valid 390x[844..2400], got {m_w}x{m_h} ({m_sz}B) (C14)")
+        if d_metrics.get("valid") and d_w == 1440 and 900 <= d_h <= 2400:
+            if d_metrics["gray_std"] < 8.0 and d_metrics["edge_density"] < 0.003:
+                issues.append(
+                    f"Desktop PNG is solid/blank (std={d_metrics['gray_std']}, edge={d_metrics['edge_density']}) (C14)"
+                )
+            else:
+                asset_score += 2.0
+                if d_metrics["dominant_q16_pct"] > 95.0 and d_metrics["edge_density"] < 0.005:
+                    warnings.append(
+                        f"Desktop PNG low-entropy/minimal (q16={d_metrics['dominant_q16_pct']}%, edge={d_metrics['edge_density']}) — queue for visual review"
+                    )
+                if d_metrics.get("has_blank_tail"):
+                    warnings.append(
+                        f"Desktop PNG blank bottom tail (tail_std={d_metrics.get('tail_gray_std')}, tail_edge={d_metrics.get('tail_edge_density')}) — R3-1/R4 visual review"
+                    )
+                if d_metrics.get("has_mid_blank_void"):
+                    warnings.append(
+                        f"Desktop PNG mid-page solid void ({d_metrics.get('max_blank_void_px')}px at y={d_metrics.get('mid_blank_void_range')}) — R3-1 visual review"
+                    )
+        else:
+            issues.append(f"Desktop PNG must be valid 1440x[900..2400], got {d_w}x{d_h} ({d_sz}B) (C14)")
+
+        if m_metrics.get("valid") and m_w == 390 and 844 <= m_h <= 2400:
+            if m_metrics["gray_std"] < 8.0 and m_metrics["edge_density"] < 0.003:
+                issues.append(
+                    f"Mobile PNG is solid/blank (std={m_metrics['gray_std']}, edge={m_metrics['edge_density']}) (C14)"
+                )
+            else:
+                asset_score += 2.0
+                if m_metrics["dominant_q16_pct"] > 95.0 and m_metrics["edge_density"] < 0.005:
+                    warnings.append(
+                        f"Mobile PNG low-entropy/minimal (q16={m_metrics['dominant_q16_pct']}%, edge={m_metrics['edge_density']}) — queue for visual review"
+                    )
+                if m_metrics.get("has_blank_tail"):
+                    warnings.append(
+                        f"Mobile PNG blank bottom tail (tail_std={m_metrics.get('tail_gray_std')}, tail_edge={m_metrics.get('tail_edge_density')}) — R3-1/R4 visual review"
+                    )
+                if m_metrics.get("has_mid_blank_void"):
+                    warnings.append(
+                        f"Mobile PNG mid-page solid void ({m_metrics.get('max_blank_void_px')}px at y={m_metrics.get('mid_blank_void_range')}) — R3-1 visual review"
+                    )
+        else:
+            issues.append(f"Mobile PNG must be valid 390x[844..2400], got {m_w}x{m_h} ({m_sz}B) (C14)")
 
     has_dw = f"{d_w}x{d_h}" in bp_content or f"{d_w}×{d_h}" in bp_content
     has_mw = f"{m_w}x{m_h}" in bp_content or f"{m_w}×{m_h}" in bp_content
     if has_dw and has_mw:
         asset_score += 1.0
     else:
-        issues.append(f"Exact PNG dimensions ({d_w}x{d_h}, {m_w}x{m_h}) not documented in blueprint")
+        issues.append(f"Exact asset dimensions ({d_w}x{d_h}, {m_w}x{m_h}) not documented in blueprint")
 
     cap_m = re.search(r"^capture:\s*(\S+)", fm, re.MULTILINE)
     cap_d_m = re.search(r"^capture_desktop:\s*(\S+)", fm, re.MULTILINE)
@@ -278,17 +357,22 @@ def evaluate_target(
     if "Design Specimen" in bp_content:
         asset_score -= 2.0
         issues.append("Synthetic 'Design Specimen' fallback text found in live blueprint (C14)")
-    if "Desktop Viewport Capture" not in bp_body or "Mobile Viewport Capture" not in bp_body:
-        asset_score -= 0.5
-        issues.append("Missing live Desktop/Mobile Viewport Capture captions in blueprint (C14)")
+    if is_v2:
+        if "Desktop Journey Filmstrip" not in bp_body or "Mobile Journey Filmstrip" not in bp_body:
+            asset_score -= 0.5
+            issues.append("Missing Desktop/Mobile Journey Filmstrip captions in v2 blueprint (C14)")
+    else:
+        if "Desktop Viewport Capture" not in bp_body or "Mobile Viewport Capture" not in bp_body:
+            asset_score -= 0.5
+            issues.append("Missing live Desktop/Mobile Viewport Capture captions in blueprint (C14)")
 
     if duplicate_hashes:
         if d_metrics.get("sha256") in duplicate_hashes:
             asset_score -= 1.5
-            issues.append(f"Duplicate desktop.png SHA256 hash across catalog: {d_metrics['sha256'][:12]} (C15)")
+            issues.append(f"Duplicate desktop asset SHA256 hash across catalog: {d_metrics['sha256'][:12]} (C15)")
         if m_metrics.get("sha256") in duplicate_hashes:
             asset_score -= 1.5
-            issues.append(f"Duplicate mobile.png SHA256 hash across catalog: {m_metrics['sha256'][:12]} (C15)")
+            issues.append(f"Duplicate mobile asset SHA256 hash across catalog: {m_metrics['sha256'][:12]} (C15)")
 
     scores["visual_assets"] = max(0.0, round(asset_score, 1))
 
@@ -427,6 +511,22 @@ def evaluate_target(
     if verified_classes < 2 and total_dom_classes >= 2:
         struct_score -= 1.5
         issues.append(f"Few real DOM classes verified in dom.html ({verified_classes})")
+    if is_v2:
+        sec8 = secs.get(8, "")
+        if not sec8.strip():
+            struct_score -= 1.5
+            issues.append("Missing Section 8 (Full-Page Scroll Journey & Subpage Inventory) in v2 blueprint")
+        else:
+            s8_links = re.findall(r"\((assets/[^)]+\.webp)\)", sec8)
+            if not s8_links:
+                struct_score -= 1.0
+                issues.append("Section 8 contains zero WebP asset links")
+            else:
+                missing_s8 = [lnk for lnk in s8_links if not (target_path / lnk).exists() or (target_path / lnk).stat().st_size == 0]
+                if missing_s8:
+                    struct_score -= 1.5
+                    issues.append(f"Broken Section 8 WebP links: {missing_s8[:5]}")
+
     scores["structural_completeness"] = max(0.0, round(struct_score, 1))
 
     # 4. Internal Cross-Section Consistency (0-5 pts — C1, C4, C5, C12)
@@ -501,12 +601,15 @@ def evaluate_target(
 
 
 def find_duplicate_png_hashes(target_list: List[str]) -> Set[str]:
-    """Compute SHA256 across all desktop & mobile PNGs in target_list and return any duplicated hashes."""
+    """Compute SHA256 across all desktop & mobile primary assets (WebP v2 or legacy PNG) and return duplicated hashes."""
     import hashlib
     counts: Dict[str, int] = {}
     for slug in target_list:
-        for name in ("desktop.png", "mobile.png"):
-            p = TARGETS_DIR / slug / "assets" / name
+        assets_dir = TARGETS_DIR / slug / "assets"
+        d_webp = assets_dir / "desktop-journey.webp"
+        m_webp = assets_dir / "mobile-journey.webp"
+        pair = (d_webp, m_webp) if d_webp.exists() else (assets_dir / "desktop.png", assets_dir / "mobile.png")
+        for p in pair:
             if p.exists() and p.stat().st_size > 0:
                 h = hashlib.sha256(p.read_bytes()).hexdigest()
                 counts[h] = counts.get(h, 0) + 1
