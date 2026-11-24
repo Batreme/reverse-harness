@@ -426,7 +426,7 @@ READ_HOVER_STYLE_JS = """
 INTERACTIVE_CONTROL_FIND_JS = """
 () => {
   try {
-    const FORBIDDEN = /\\b(?:captcha|turnstile|login|sign[- ]?in|submit|checkout|cart|pay|delete|cookie|consent|privacy|menu|nav)\\b/i;
+    const FORBIDDEN = /\\b(?:captcha|turnstile|login|sign[- ]?in|submit|checkout|cart|pay(?:ment)?s?|delete|cookie|consent|privacy|menu|nav(?:bar|igation)?)\\b/i;
     const isVis = (el) => {
       if (!el) return false;
       const cs = window.getComputedStyle(el);
